@@ -1,0 +1,28 @@
+body{  
+    margin: 0 ;
+}
+
+.tableGrid{
+    min-height: 100vh;
+    min-width: 100vw;
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(17,17,65,1) 35%, rgba(0,212,255,1) 100%);
+}
+
+.playerOne, .playerTwo, .playerThree, .playerFour { 
+    position: absolute;
+}
+
+.playerOne { 
+    bottom: 0 ;
+    left: 50%;
+}
+
+.playerTwo { 
+    top: 0 ;
+    left: 50%;
+}
+
+.playerThree { 
+    
+}
