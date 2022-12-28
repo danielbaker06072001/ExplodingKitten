@@ -1,11 +1,10 @@
-import Table from "./Table/Table";
-import Lobby from "./Table/Lobby";
+import { router } from './router';
+import { RouterProvider } from 'react-router-dom';
+
 
 function App() {
   return (
-    <div>
-      <Lobby/>
-    </div>
+      <RouterProvider router={router} />
   );
 }
 
