@@ -1,59 +1,72 @@
 import { router } from './router';
 import { RouterProvider } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setPlayers } from './reducers/PlayersReducer';
-import { setCards } from './reducers/DeckReducer';
+import { useDispatch, useSelector } from 'react-redux';
+import { setPlayers, setPlayerCards, addCard } from './reducers/PlayersReducer';
+import { setDeskCards, popCards } from './reducers/DeckReducer';
+import { generateDeck, dealCardFirstRound } from './utils/DeckUtils';
+import { connect } from 'react-redux';
+import { useEffect, useState } from 'react';
+import React from 'react';
 
-function App() {
+function App(props) {
   const dispatch = useDispatch()
+  const [playerState, setPlayerState] = useState();
+  const [deskState, setDeskState] = useState();
 
-  dispatch(setPlayers(
-    [
-      {
-        username: "test1",
-        cards: ["ATTACK", "DEFUSE", "SKIP", "NOPE","ATTACK"]
-      },
-      {
-        username: "test2",
-        cards: ["DEFUSE", "ATTACK", "DEFUSE"]
-      },
-      {
-        username: "test3",
-        cards: ["DEFUSE", "ATTACK", "DEFUSE"]
-      },
-      {
-        username: "test4",
-        cards: ["DEFUSE", "ATTACK", "DEFUSE"]
-      },
-    ]
-  ));
+  console.log("Rerender");
+  useEffect(()=>{
 
-  let cards = [];
-  for (let i = 0; i < 56; i ++) {
-    let random = Math.floor(Math.random() * 5);
+    dispatch(setDeskCards(generateDeck()));
+    
+    dispatch(setPlayers(
+      [
+        {
+          username: "duc",
+          cards: []
+        },
+        {
+          username: "nhatanh",
+          cards: []
+        },
+        {
+          username: "quangloz",
+          cards: []
+        },
+        {
+          username: "duongtruc",
+          cards: []
+        },
+      ]
+    ));
+  },[]);
 
-    if (random === 0) {
-      cards.push("ATTACK");
+  
+  let players = useSelector((state) => state.playersReducer.players);
+  let cards = useSelector((state) => state.deskReducer.cards);
+
+  setPlayerState(players);
+  setDeskState(cards);
+  
+  console.log(players);
+  console.log(cards);
+  useEffect(() => { 
+    for(let i = 0 ; i < 16; i++) { 
+      let player = playerState[i % 4];
+  
+      let lastCardInDesk = deskState.slice(cards.length - 1);
+      console.log(playerState, " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    
+  
+      dispatch(addCard({ username: player.username, card: lastCardInDesk}));
+      dispatch(popCards());
     }
-    if (random === 1) {
-      cards.push("DEFUSE");
-    }
-    if (random === 2) {
-      cards.push("SKIP");
-    }
-    if (random === 3) {
-      cards.push("NOPE");
-    }
-    if (random === 4) {
-      cards.push("BOMB");
-    }
-  }
-  dispatch(setCards(cards));
+  }, []);
+  
 
   return (
-      <RouterProvider router={router} />
+      // <RouterProvider router={router} />
+      <React.Fragment></React.Fragment>
   );
 }
 
 export default App;
-

@@ -11,7 +11,7 @@ export const PlayersSlice = createSlice({
     setPlayers: (state, action) => {
       state.players = action.payload;
     },
-    setCards: (state, action) => {
+    setPlayerCards: (state, action) => {
       state.card = action.payload;
     },
     addCard: (state, action) => {
@@ -27,6 +27,6 @@ export const getPlayerByUsername = (state, username) => {
 }
 
 // Action creators are generated for each case reducer function
-export const { setPlayers, setCards, addCard } = PlayersSlice.actions;
+export const { setPlayers, setPlayerCards, addCard } = PlayersSlice.actions;
 
 export default PlayersSlice.reducer;

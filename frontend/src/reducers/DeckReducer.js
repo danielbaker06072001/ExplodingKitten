@@ -8,17 +8,16 @@ export const DecksSlice = createSlice({
     cards: []
   },
   reducers: {
-    setCards: (state, action) => {
+    setDeskCards: (state, action) => {
       state.cards = action.payload;
     },
     popCards: (state, action) => {
       state.cards = state.cards.slice(0, state.cards.length - 1);
-      
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setCards, popCards } = DecksSlice.actions;
+export const { setDeskCards, popCards } = DecksSlice.actions;
 
 export default DecksSlice.reducer;

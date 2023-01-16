@@ -24,7 +24,7 @@ const MainPlayerPosition = (props) => {
 };
 
 const mapStateToProps = (state, ownProps) => {
-    const player = getPlayerByUsername(state, "test1");
+    const player = getPlayerByUsername(state, "duc");
     const deskCards = state.deskReducer.cards;
 
     return { 
