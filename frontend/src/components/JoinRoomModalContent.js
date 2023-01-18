@@ -4,16 +4,19 @@ import ModalBody from "./modal/ModalBody";
 import ModalFooter from "./modal/ModalFooter";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { socket } from "../socket";
 
-const JoinRoomModalContent  = () => {
+const JoinRoomModalContent  = (props) => {
     let navigate = useNavigate();
     const [roomID, setRoomID] = useState("");
+    const [username, setUsername] = useState("");
+    
+    // function routeRoom(roomID) { 
+    //     let linkRoom = "/game/" + roomID;
+    //     localStorage.setItem("username", username);
+    //     navigate(linkRoom);
+    // }
 
-    function routeRoom(roomID) { 
-        console.log(roomID);
-        let linkRoom = "/game/" + roomID;
-        navigate(linkRoom);
-    }
     return ( 
         <ModalContent>
             <ModalHeader> 
@@ -21,11 +24,12 @@ const JoinRoomModalContent  = () => {
             </ModalHeader>
 
             <ModalBody>
-                <input type="text" placeholder="Enter room ID number:" onChange = {(e)=>{ setRoomID(e.target.value) ; console.log(e.target.value)}}/>
+                <input type="text" placeholder="Enter Username" onChange = {(e)=>{ setUsername(e.target.value)}}/>
+                <input type="text" placeholder="Enter room ID number:" onChange = {(e)=>{ setRoomID(e.target.value)}}/>
             </ModalBody>
 
             <ModalFooter> 
-                <input type="button" value="Create" onClick = {(e)=>routeRoom(roomID)}/>
+                <input type="button" value="Create" onClick = {(e)=> {props.onWaitingButtonClickForPlayer(username, roomID)}}/>
             </ModalFooter>
         </ModalContent>
     );

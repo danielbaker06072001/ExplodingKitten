@@ -8,6 +8,7 @@ import React from "react";
 
 const IngamePage = (props) => { 
     const playerList = useSelector((state) => state.playersReducer.players);
+    
     let { id } = useParams();
     
     if (playerList &&playerList.length > 0) {
@@ -18,9 +19,12 @@ const IngamePage = (props) => {
             </div>
         )
     }else {
-        socket.emit("join", "" + id);
+        socket.emit("join", {
+            id: id,
+            username: localStorage.getItem("username")
+        });
         return(
-        <React.Fragment> </React.Fragment>
+            <React.Fragment> </React.Fragment>
         );
     }
 };

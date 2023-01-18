@@ -1,13 +1,31 @@
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { getPlayerByUsername, setPlayers } from '../../../reducers/PlayersReducer';
+import { getPlayerSession } from '../../../reducers/PlayersReducer';
 import { connect } from 'react-redux';
 import MainCardList from '../card/MainCardList';
 import { popCards } from "../../../reducers/DeckReducer";
 import { addCard } from '../../../reducers/PlayersReducer';
+import { socket } from '../../../socket';
 
 const MainPlayerPosition = (props) => {
     const lastCardInDesk = props.deskCards.slice(props.deskCards.length - 1);
+
+    function requestPlayCard() { 
+        socket.emit("requestPlayCard", {
+            player: localStorage.getItem("username"),
+            roomId: localStorage.getItem("roomId")
+        });
+    }
+
+    socket.on("responsePlayCard", (arg) => {
+        let data = arg;
+
+        if (data.status === "YOUR_TURN") {
+            alert("Play success");
+        }else {
+            alert("Not your turn");
+        }
+    });
 
     return (
         <Wrapper>
@@ -16,7 +34,7 @@ const MainPlayerPosition = (props) => {
 
                 <ButtonWrapper>
                     <ButtonStyle onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle>
-                    <ButtonStyle>Play Card</ButtonStyle>
+                    <ButtonStyle onClick = {(e) => {requestPlayCard()}}>Play Card</ButtonStyle>
                 </ButtonWrapper>
             </Content>
         </Wrapper>
@@ -24,7 +42,7 @@ const MainPlayerPosition = (props) => {
 };
 
 const mapStateToProps = (state, ownProps) => {
-    const player = getPlayerByUsername(state, "duc");
+    const player = getPlayerSession(state);
     const deskCards = state.deskReducer.cards;
 
     return { 

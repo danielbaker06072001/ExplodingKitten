@@ -60,7 +60,6 @@ function dealCardFirstRound(players, deck, dispatch) {
 }
 
 function addCardToPlayer(username, cardType, dispatch) { 
-    console.log(username)
     //dispatch(addCard({ username: username, card: cardType}));
     // dispatch(popCards());
     return;
