@@ -43,6 +43,16 @@ const CardItemStyle = styled.div`
         background-color: brown;
     }
 
+    
+
+    &.FAVOR {
+        background-color: green;
+    }
+
+    &.FAVOR {
+        background-color: green;
+    }
+
     &:hover, &.show {
         transition-duration: 0.3s;
         transform: scale(1.25) translate(0, -20%);

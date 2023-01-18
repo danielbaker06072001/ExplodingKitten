@@ -5,68 +5,82 @@ import { setPlayers, setPlayerCards, addCard } from './reducers/PlayersReducer';
 import { setDeskCards, popCards } from './reducers/DeckReducer';
 import { generateDeck, dealCardFirstRound } from './utils/DeckUtils';
 import { connect } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useLayoutEffect } from 'react';
 import React from 'react';
+import { socket } from './socket';
+
+// socket.on("loadDeskData", (data) => {
+//   const dispatch = useDispatch();
+
+//   const game = JSON.parse(data);
+//   dispatch(setDeskCards(game.desk));
+//   dispatch(setPlayers(game.players));
+
+//   console.log(game);
+// });
 
 function App(props) {
-  const dispatch = useDispatch()
-  const [playerState, setPlayerState] = useState();
-  const [deskState, setDeskState] = useState();
+  const dispatch = useDispatch();
+  const [loadData, setLoadData] = useState(false);
+  // const [dealCard, setDealCard] = useState(false);
+  const [gameState, setGameState] = useState({});
+  const playerList = useSelector((state) => state.playersReducer.players);
+  const cardList = useSelector((state) => state.deskReducer.cards);
 
-  console.log("Rerender");
-  useEffect(()=>{
-
-    dispatch(setDeskCards(generateDeck()));
-    
-    dispatch(setPlayers(
-      [
-        {
-          username: "duc",
-          cards: []
-        },
-        {
-          username: "nhatanh",
-          cards: []
-        },
-        {
-          username: "quangloz",
-          cards: []
-        },
-        {
-          username: "duongtruc",
-          cards: []
-        },
-      ]
-    ));
-  },[]);
-
+  // console.log("Player List App");
+  // console.log(playerList);
   
-  let players = useSelector((state) => state.playersReducer.players);
-  let cards = useSelector((state) => state.deskReducer.cards);
-
-  setPlayerState(players);
-  setDeskState(cards);
-  
-  console.log(players);
-  console.log(cards);
   useEffect(() => { 
-    for(let i = 0 ; i < 16; i++) { 
-      let player = playerState[i % 4];
-  
-      let lastCardInDesk = deskState.slice(cards.length - 1);
-      console.log(playerState, " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    
-  
-      dispatch(addCard({ username: player.username, card: lastCardInDesk}));
-      dispatch(popCards());
-    }
+      socket.on("loadDeskData", (data) => {
+        const game = JSON.parse(data);
+        // console.log("GAME: #############", game);
+        // console.log("!!!!!!!!!!", game.desk);
+        setGameState(game);
+        setLoadData(true);
+        // dispatch(setDeskCards(game.desk));
+        // dispatch(setPlayers(game.players));
+      });
   }, []);
-  
 
-  return (
-      // <RouterProvider router={router} />
-      <React.Fragment></React.Fragment>
-  );
+  useEffect(() => { 
+    console.log(gameState, "INSIDE LOAD DATRA ++++++++++++++++++++")
+    dispatch(setDeskCards(gameState.desk));
+    dispatch(setPlayers(gameState.players));
+}, [loadData]);
+
+  console.log("______________________", gameState);
+  
+  // useEffect(() => {
+  //   setLoadData(true);
+  // }, []);
+
+  // useEffect(() => {
+  //     if(playerList.length > 0 ) { 
+  //       let cardListClone = cardList;
+
+  //       for(let i = 0 ; i < 16; i++) { 
+  //         let player = playerList[i % 4];
+  //         let lastCardInDesk = cardListClone.slice(cardListClone.length - 1);
+  //         cardListClone = cardListClone.slice(0, cardListClone.length - 1);
+    
+  //         dispatch(addCard({ username: player.username, card: lastCardInDesk}));
+  //         dispatch(popCards());
+  //       }
+
+  //       setDealCard(true);
+  //     }
+  // }, [loadData]);
+
+  // if (playerList.length > 0) {
+    return (
+        <RouterProvider router={router} />
+    );
+  // }else {
+  //   return(
+  //     <React.Fragment> </React.Fragment>
+  //   );
+  // }
+
 }
 
 export default App;

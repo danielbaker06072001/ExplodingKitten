@@ -38,7 +38,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         setPlayers: () => {},
         popCards: (cardName) => {
-            dispatch(addCard({ username: "test1", card: cardName}))
+            dispatch(addCard({ username: "duc", card: cardName}))
             dispatch(popCards());
         }
     }
@@ -49,7 +49,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(MainPlayerPosition);
 const Wrapper = styled.div`
   width: 100vw;
   height: 200px;
-  background-color: red;
+  background-color: unset;
 
   position: absolute;
   bottom: 0px;
