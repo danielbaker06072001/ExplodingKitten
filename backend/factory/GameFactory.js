@@ -15,70 +15,69 @@ Total cards: 56
 
 class GameFactory {
     constructor() {
-        this.map = {};
-        let playerListExample = [
-    {
-      username: "duc",
-      cards: []
-    },
-    {
-      username: "nhatanh",
-      cards: []
-    },
-    {
-      username: "quangloz",
-      cards: []
-    },
-    {
-      username: "duongtruc",
-      cards: []
-    },
-  ];
+        this.gameData = {};
+        this.gameSocket = {};
+    }
+
+    hasGameRoomId(gameId) {
+        return this.gameData[gameId] ? true : false;
     }
 
     getGameFactory(gameId) {
-        if (this.map[gameId]) {
-            const game = this.map[gameId];
+        if (this.gameData[gameId]) {
+            const game = this.gameData[gameId];
             return game;
         }else {
             const game = {
                 id: gameId,
+                status: 'WAITING',
                 desk: generateDesk(),
-                players: [
-                    {
-                      username: "duc",
-                      cards: []
-                    },
-                    {
-                      username: "nhatanh",
-                      cards: []
-                    },
-                    {
-                      username: "quangloz",
-                      cards: []
-                    },
-                    {
-                      username: "duongtruc",
-                      cards: []
-                    },
-                ]
+                owner: {},
+                players: [], 
+                playerTurn: 0
             };
 
-            let desk = game.desk;
-            let players = game.players;
-            for(let i = 0 ; i < 16; i++) { 
-                let player = players[i % 4];
-                let lastCardInDesk = desk.slice(desk.length - 1);
-                desk = desk.slice(0, desk.length - 1);
-                
-                player.cards.push(lastCardInDesk);
-            }
+            const gameSocket = [];
 
-            game.desk = desk;
-
-            this.map[gameId] = game;
+            this.gameData[gameId] = game;
+            this.gameSocket[gameId] = gameSocket;
             return game;
         }
+    }
+
+    getGameSocketFactory(gameId) {
+        if (this.gameSocket[gameId]) {
+            const gameSocket = this.gameSocket[gameId];
+            return gameSocket;
+        }
+        return null;
+    }
+
+    startGame(gameId) {
+        let game = this.getGameFactory(gameId);
+        game.status = "STARTING";
+        
+        this.generateGameDesk(gameId);
+    }
+    
+    generateGameDesk(gameId) {
+      let game = this.getGameFactory(gameId);
+      for(let i = 0; i < game.players.length*4; i++) {
+          let playerTurn = game.players[i%game.players.length];
+
+          playerTurn.cards.push(game.desk.pop());
+          game.desk = game.desk.slice(0, game.desk.length -1);
+      }
+    }
+
+    getPlayerTurn(gameId) { 
+      let game = this.getGameFactory(gameId);
+      return game.players[game.playerTurn%game.players.length];
+    }
+
+    nextTurn(gameId) { 
+        let game = this.getGameFactory(gameId);
+        game.playerTurn++;
     }
 };
 
