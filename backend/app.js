@@ -1,5 +1,4 @@
 // app.js
-
 const express = require('express');
 const connectDB = require("./config/db");
 const router = express.Router();
@@ -37,28 +36,57 @@ const io = new Server(8080,
     }
 );
 
-
-router.get('/send', (req,res) => { 
-    io.emit("hello", "lon nhat anh");
-});
-
 const GameFactory = require('./factory/GameFactory');
 const gameFactory = new GameFactory();
 
 io.on("connection", (socket) => {
-    socket.on("requestStartGame", (arg) => {
-        const id = arg;
+    socket.on("request", (arg) => {
+        console.log(arg);
+
+        const type = arg.type;
+        const data = arg.data;
+
+        switch(type) {
+            case "REQUEST_START_GAME":
+                requestStartGame(data);
+                break;
+            case "REQUEST_JOIN_OWNER":
+                requestJoinOwner(data);
+                break;
+            case "REQUEST_JOIN_PLAYER":
+                requestJoinPlayer(data);
+                break;  
+            case "REQUEST_PLAY_CARD":
+                requestPlayCard(data);
+                break;
+            case "REQUEST_DRAW_CARD":
+                requestDrawCard(data);
+                break;
+            
+            default:
+                break;
+        }
+    })
+
+    function requestStartGame(data) {
+        const id = data.roomId;
         gameFactory.startGame(id);
 
+        let game = gameFactory.getGameFactory(id);
         let gameSocket = gameFactory.getGameSocketFactory(id);
         gameSocket.forEach((socket) => {
-            socket.emit("responseStartGame", {});
+            socket.emit("response", {
+                type: 'RESPONSE_START_GAME',
+                data: {
+                    game: game
+                }
+            });
         });
-    })
+    }
     
-    socket.on("requestJoinOwner", (arg) => {
-        const owner = arg.owner;
-        const roomId = arg.roomId;
+    function requestJoinOwner(data) {
+        const owner = data.owner;
+        const roomId = data.roomId;
         
         let game = gameFactory.getGameFactory(roomId);
         let gameSocket = gameFactory.getGameSocketFactory(roomId);
@@ -71,12 +99,17 @@ io.on("connection", (socket) => {
         game.players.push(player);
         gameSocket.push(socket);
 
-        socket.emit("responseJoinOwner", game);
-    })
+        socket.emit("response", {
+            type: "RESPONSE_JOIN_OWNER",
+            data: {
+                game: game
+            }
+        });
+    }
 
-    socket.on("requestJoinPlayer", (arg) => {
-        const player = arg.player;
-        const roomId = arg.roomId;
+    function requestJoinPlayer(data) {
+        const player = data.player;
+        const roomId = data.roomId;
 
         if (gameFactory.hasGameRoomId(roomId)) {
             let game = gameFactory.getGameFactory(roomId);
@@ -90,42 +123,74 @@ io.on("connection", (socket) => {
             gameSocket.push(socket);
 
             gameSocket.forEach((socket) => {
-                socket.emit("responseJoinPlayerSuccess", game);
+                socket.emit("response", {
+                    type: "RESPONSE_JOIN_PLAYER_SUCCESS",
+                    data: {
+                        game: game
+                    }
+                });
             });
         }else {
-            socket.emit("responseJoinPlayerFail", {});
+            socket.emit("response", {
+                type: "RESPONSE_JOIN_PLAYER_FAIL",
+                data: {
+                    game: game
+                }
+            });
         }
-    })
+    }
 
-    socket.on("join", (arg) => {
-        const data = arg;
-        let game = gameFactory.getGameFactory(data.id);
-        let gameSocket = gameFactory.getGameSocketFactory(data.id);
-        gameSocket.forEach((socket) => {
-            socket.emit("loadDeskData", game);
-        });
-    })
+    // socket.on("join", (arg) => {
+    //     const data = arg;
+    //     let game = gameFactory.getGameFactory(data.id);
+    //     let gameSocket = gameFactory.getGameSocketFactory(data.id);
+    //     gameSocket.forEach((socket) => {
+    //         socket.emit("loadDeskData", game);
+    //     });
+    // })
 
-    socket.on("requestPlayCard", (arg) => {
-        let player = arg.player;
-        let roomId = arg.roomId;
-        let playerTurn = gameFactory.getPlayerTurn(roomId);
+    function requestPlayCard(data) {
+        let player = data.player;
+        let roomId = data.roomId;
 
-        if (playerTurn.username === player) {
-            socket.emit("responsePlayCard", {status: "YOUR_TURN"});
+        if (gameFactory.isPlayerTurn(player, roomId)) {
+            // socket.emit("responsePlayCard", {status: "YOUR_TURN", cardPlay : });
+        }else {
+            socket.emit("response", {
+                type: "RESPONSE_PLAY_CARD",
+                data: {
+                    status: "OPPONENT_TURN"
+                }
+            });
+        }
+    }
+
+    function requestDrawCard(data) {
+        let player = data.player;
+        let roomId = data.roomId;
+
+        let game = gameFactory.getGameFactory(roomId);
+        if (gameFactory.isPlayerTurn(player, roomId)) {
+            gameFactory.drawCard(player, roomId);
+            socket.emit("response", {
+                type: "RESPONSE_DRAW_CARD",
+                data: {
+                    status: "YOUR_TURN",
+                    game: game
+                }
+            });
             gameFactory.nextTurn(roomId);
         }else {
-            socket.emit("responsePlayCard", {status: "OPPONENT_TURN"});
+            console.log("DRAW OTHER TURN");
+            socket.emit("response", {
+                type: "RESPONSE_DRAW_CARD",
+                data: {
+                    status: "OPPONENT_TURN"
+                }
+            });
         }
-
-    })
-
+    }
 })
-
-
-
-// Initial setup
-app.get('/', (req, res) => res.send('Hello world!'));
 
 const port = process.env.PORT || 8082;
 

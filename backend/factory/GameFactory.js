@@ -61,23 +61,43 @@ class GameFactory {
     }
     
     generateGameDesk(gameId) {
-      let game = this.getGameFactory(gameId);
-      for(let i = 0; i < game.players.length*4; i++) {
-          let playerTurn = game.players[i%game.players.length];
+        let game = this.getGameFactory(gameId);
+        for(let i = 0; i < game.players.length*4; i++) {
+            let playerTurn = game.players[i%game.players.length];
 
-          playerTurn.cards.push(game.desk.pop());
-          game.desk = game.desk.slice(0, game.desk.length -1);
-      }
+            playerTurn.cards.push(game.desk.pop());
+            game.desk = game.desk.slice(0, game.desk.length -1);
+        }
     }
 
     getPlayerTurn(gameId) { 
-      let game = this.getGameFactory(gameId);
-      return game.players[game.playerTurn%game.players.length];
+        let game = this.getGameFactory(gameId);
+        return game.players[game.playerTurn%game.players.length];
+    }
+
+    isPlayerTurn(playerName, gameId) {
+        let playerTurn = this.getPlayerTurn(gameId);
+        return playerTurn.username === playerName;
     }
 
     nextTurn(gameId) { 
         let game = this.getGameFactory(gameId);
         game.playerTurn++;
+    }
+
+    getPlayCard() { 
+
+    }
+
+    drawCard(playerName, gameId) {
+        let game = this.getGameFactory(gameId);
+        let cardDraw = game.desk[game.desk.length-1]; 
+        let playerTurn = this.getPlayerTurn(gameId);
+        
+        game.desk = game.desk.slice(0, game.desk.length -1); 
+        playerTurn.cards.push(cardDraw);
+
+        console.log("DRAW ", playerName, cardDraw);
     }
 };
 

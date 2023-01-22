@@ -1,5 +1,5 @@
 import '../css/style.css';
-import React,  {useState, useEffect} from 'react';
+import React,  {useState, useEffect, useContext} from 'react';
 import LobbyWrapper from '../components/LobbyWrapper';
 import ModalWrapper from '../components/modal/ModalWrapper';
 import CreateRoomModalContent from '../components/CreateRoomModalContent';
@@ -8,15 +8,29 @@ import MenuContent from '../components/MenuContent';
 import MenuWrapper from '../components/MenuWrapper'
 import LobbyButton from '../components/input/LobbyButton';
 import WaitingRoomModalContent from '../components/WaitingRoomModalContent';
-import { socket } from '../socket';
+import { GlobalContext } from '../context/GlobalProvider';
 import { useNavigate } from 'react-router-dom';
+import { useSocket } from '../socket';
 
 const LobbyPage = () => { 
     const navigate = useNavigate();
-    const [modalType, setModalType] = useState("");
-    const [owner, setOwner] = useState(null);
-    const [roomId, setRoomId] = useState(null);
-    const [playerList, setPlayerList] = useState([]);
+    const socket = useSocket();
+    const { 
+        owner, setOwner, 
+        username, setUsername,
+        roomId, setRoomId,
+        modalType, setModalType,
+        playerList, setPlayerList,
+        startGame, setStartGame,
+    } = useContext(GlobalContext);
+
+    useEffect(() =>  {
+        return () => { 
+            let linkRoom = "/game/" + roomId;
+            navigate(linkRoom);
+        }
+    }, [startGame]);
+    
 
     function onButtonClick(type) {
         setModalType(type);
@@ -25,58 +39,39 @@ const LobbyPage = () => {
     }
 
     function onWaitingButtonClickForOwner(owner, roomId) {
-        socket.emit("requestJoinOwner", {
-            roomId: roomId,
-            owner: owner
+        socket.emit("request", {
+            type: "REQUEST_JOIN_OWNER",
+            data: {
+                roomId: roomId,
+                owner: owner
+            }
         });
 
-        localStorage.setItem("username", owner);
-        localStorage.setItem("roomId", roomId);
+        setUsername(owner);
+        setRoomId(roomId);
     }
 
     function onWaitingButtonClickForPlayer(player, roomId) {
-        socket.emit("requestJoinPlayer", {
-            roomId: roomId,
-            player: player
+        socket.emit("request", {
+            type: "REQUEST_JOIN_PLAYER",
+            data: {
+                roomId: roomId,
+                player: player
+            }
         });
 
-        localStorage.setItem("username", player);
-        localStorage.setItem("roomId", roomId);
+        setUsername(player);
+        setRoomId(roomId);
     }
-
-    socket.on("responseJoinOwner", (arg) => { 
-        let gameData = arg;
-
-        setModalType('WAITING');
-        setOwner(gameData.owner);
-        setRoomId(gameData.id);
-        setPlayerList(gameData.players);
-    });
-
-    socket.on("responseJoinPlayerSuccess", (arg) => { 
-        let game = arg;
-
-        setModalType('WAITING');
-        setOwner(game.owner);
-        setRoomId(game.id);
-        setPlayerList(game.players);
-    });
-
-    socket.on("responseJoinPlayerFail", (arg) => { 
-        alert("No room found!");
-
-        localStorage.removeItem("username");
-    });
-
 
     function requestStartGame() {
-        socket.emit("requestStartGame", roomId);
+        socket.emit("request", {
+            type: "REQUEST_START_GAME",
+            data: {
+                roomId: roomId
+            }
+        });
     }
-    
-    socket.on("responseStartGame", (arg) => { 
-        let linkRoom = "/game/" + roomId;
-        navigate(linkRoom);
-    });
 
     let modalContent = null;
     if (modalType === 'CREATE') {
@@ -88,7 +83,7 @@ const LobbyPage = () => {
     } else if (modalType === 'MATCH_MAKING') {
         
     }
-    
+
     return ( 
         <LobbyWrapper>
             <ModalWrapper>

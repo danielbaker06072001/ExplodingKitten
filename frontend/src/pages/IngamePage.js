@@ -5,33 +5,34 @@ import CardDeck from "../components/ingame/card/CardDeck";
 import { socket } from "../socket";
 import { useSelector } from "react-redux";
 import React from "react";
+import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setPlayers, setUsername, setRoomId } from "../reducers/PlayersReducer";
+import { setDeskCards} from '../reducers/DeckReducer';
+import { useEffect, useState } from 'react';
+import { useSocket } from "../socket";
+import { useContext } from "react";
+import { GameContext } from "../context/GameProvider";
+import { GlobalContext } from "../context/GlobalProvider";
 
 const IngamePage = (props) => { 
-    const playerList = useSelector((state) => state.playersReducer.players);
+    const socket = useSocket();
+    const { 
+        gameData, setGameData
+    } = useContext(GameContext);
+
+    const { 
+        roomId, setRoomId,
+        username, setUsername,
     
-    let { id } = useParams();
-    
-    if (playerList &&playerList.length > 0) {
-        return(
-            <div style={{maxHeight: "100vh", overflow: "hidden"}}> 
-                <PlayerPosition />
-                <CardDeck />
-            </div>
-        )
-    }else {
-        socket.emit("join", {
-            id: id,
-            username: localStorage.getItem("username")
-        });
-        return(
-            <React.Fragment> </React.Fragment>
-        );
-    }
+    } = useContext(GlobalContext);
+
+    return(
+        <div style={{maxHeight: "100vh", overflow: "hidden"}}> 
+            <PlayerPosition />
+            <CardDeck />
+        </div>
+    )
 };
 
 export default IngamePage;
-
-
-export const CardDeckStyle = styled.div` 
-    
-`

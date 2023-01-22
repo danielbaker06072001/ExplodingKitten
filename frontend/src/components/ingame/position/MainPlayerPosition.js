@@ -3,37 +3,48 @@ import { useSelector, useDispatch } from 'react-redux';
 import { getPlayerSession } from '../../../reducers/PlayersReducer';
 import { connect } from 'react-redux';
 import MainCardList from '../card/MainCardList';
-import { popCards } from "../../../reducers/DeckReducer";
-import { addCard } from '../../../reducers/PlayersReducer';
-import { socket } from '../../../socket';
+import { useSocket } from '../../../socket';
+import { useContext } from 'react';
+import { GlobalContext } from '../../../context/GlobalProvider';
+import { GameContext } from '../../../context/GameProvider';
 
 const MainPlayerPosition = (props) => {
-    const lastCardInDesk = props.deskCards.slice(props.deskCards.length - 1);
+    const socket = useSocket();
+    const { username, roomId } = useContext(GlobalContext);
+    const { gameData } = useContext(GameContext);
+    
+    const player = gameData.players.find((player) => 
+        player.username === username
+    );
 
     function requestPlayCard() { 
-        socket.emit("requestPlayCard", {
-            player: localStorage.getItem("username"),
-            roomId: localStorage.getItem("roomId")
+        socket.emit("request", {
+            type: "REQUEST_PLAY_CARD",
+            data: { 
+                player: username,
+                roomId: roomId
+            }
         });
     }
 
-    socket.on("responsePlayCard", (arg) => {
-        let data = arg;
-
-        if (data.status === "YOUR_TURN") {
-            alert("Play success");
-        }else {
-            alert("Not your turn");
-        }
-    });
+    function requestDrawCard() { 
+        socket.emit("request", {
+            type: "REQUEST_DRAW_CARD", 
+            data:{ 
+                player: username,
+                roomId: roomId
+            }
+        });
+    }
 
     return (
         <Wrapper>
             <Content>
-                <MainCardList cards={props.cards} />
+                <MainCardList cards={player.cards} />
 
                 <ButtonWrapper>
-                    <ButtonStyle onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle>
+                    {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                    <ButtonStyle onClick={(e) => {requestDrawCard()}}>Draw Card</ButtonStyle>
                     <ButtonStyle onClick = {(e) => {requestPlayCard()}}>Play Card</ButtonStyle>
                 </ButtonWrapper>
             </Content>
@@ -41,28 +52,7 @@ const MainPlayerPosition = (props) => {
     );
 };
 
-const mapStateToProps = (state, ownProps) => {
-    const player = getPlayerSession(state);
-    const deskCards = state.deskReducer.cards;
-
-    return { 
-        username : player.username,
-        cards: player.cards,
-        deskCards: deskCards
-    }; 
-};
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        setPlayers: () => {},
-        popCards: (cardName) => {
-            dispatch(addCard({ username: "duc", card: cardName}))
-            dispatch(popCards());
-        }
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(MainPlayerPosition);
+export default MainPlayerPosition;
 
 const Wrapper = styled.div`
   width: 100vw;
