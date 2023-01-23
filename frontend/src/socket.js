@@ -21,7 +21,6 @@ export const useSocket = (props) => {
     const socket = io('ws://localhost:8080', { transports : ['websocket'] });
 
     socket.on("response", (arg) => {
-        console.log(arg);
         const type = arg.type;
         const data = arg.data;
 
@@ -44,6 +43,7 @@ export const useSocket = (props) => {
             case "RESPONSE_START_GAME":
                 responseStartGame(data);
                 break;
+        
             default:
                 break;
             }
@@ -52,9 +52,12 @@ export const useSocket = (props) => {
         
     function responseJoinOwner(data) { 
         let gameData = data.game;
+
+        console.log(gameData);
+
         setModalType('WAITING');
         setOwner(gameData.owner);
-        setRoomId(gameData.id);
+        setRoomId(gameData.roomId);
         setPlayerList(gameData.players);
     }
 
@@ -62,7 +65,7 @@ export const useSocket = (props) => {
         let gameData = data.game;
         setModalType('WAITING');
         setOwner(gameData.owner);
-        setRoomId(gameData.id);
+        setRoomId(gameData.roomId);
         setPlayerList(gameData.players);
     }
 

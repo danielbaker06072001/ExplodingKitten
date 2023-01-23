@@ -13,55 +13,66 @@ Total cards: 56
 - Special card: 20 (5 types - 4 each)
 */
 
+class GameData {
+    constructor(data) {
+        this.roomId  = data.roomId;
+        this.status  = data.status;
+        this.desk  = data.desk;
+        this.owner  = data.owner;
+        this.players  = data.players;
+        this.playerTurn  = data.playerTurn;
+        this.historyTurn = data.historyTurn;
+    }
+}
 class GameFactory {
     constructor() {
         this.gameData = {};
         this.gameSocket = {};
     }
 
-    hasGameRoomId(gameId) {
-        return this.gameData[gameId] ? true : false;
+    hasGameRoomId(roomId) {
+        return this.gameData[roomId] ? true : false;
     }
 
-    getGameFactory(gameId) {
-        if (this.gameData[gameId]) {
-            const game = this.gameData[gameId];
+    getGameFactory(roomId) {
+        if (this.gameData[roomId]) {
+            const game = this.gameData[roomId];
             return game;
         }else {
-            const game = {
-                id: gameId,
+            const game = new GameData({
+                roomId: roomId,
                 status: 'WAITING',
                 desk: generateDesk(),
                 owner: {},
-                players: [], 
-                playerTurn: 0
-            };
-
+                players: [],
+                playerTurn: 0,
+                historyTurn: []
+            });
             const gameSocket = [];
 
-            this.gameData[gameId] = game;
-            this.gameSocket[gameId] = gameSocket;
+            this.gameData[roomId] = game;
+            this.gameSocket[roomId] = gameSocket;
             return game;
         }
     }
 
-    getGameSocketFactory(gameId) {
-        if (this.gameSocket[gameId]) {
-            const gameSocket = this.gameSocket[gameId];
+    getGameSocketFactory(roomId) {
+        if (this.gameSocket[roomId]) {
+            const gameSocket = this.gameSocket[roomId];
             return gameSocket;
         }
         return null;
     }
 
-    startGame(gameId) {
-        let game = this.getGameFactory(gameId);
+    startGame(roomId) {
+        let game = this.getGameFactory(roomId);
         game.status = "STARTING";
         
-        this.generateGameDesk(gameId);
+        this.generateGameDesk(roomId);
     }
     
-    generateGameDesk(gameId) {
-        let game = this.getGameFactory(gameId);
+    generateGameDesk(roomId) {
+        let game = this.getGameFactory(roomId);
         for(let i = 0; i < game.players.length*4; i++) {
             let playerTurn = game.players[i%game.players.length];
 
@@ -70,18 +81,18 @@ class GameFactory {
         }
     }
 
-    getPlayerTurn(gameId) { 
-        let game = this.getGameFactory(gameId);
+    getPlayerTurn(roomId) { 
+        let game = this.getGameFactory(roomId);
         return game.players[game.playerTurn%game.players.length];
     }
 
-    isPlayerTurn(playerName, gameId) {
-        let playerTurn = this.getPlayerTurn(gameId);
+    isPlayerTurn(playerName, roomId) {
+        let playerTurn = this.getPlayerTurn(roomId);
         return playerTurn.username === playerName;
     }
 
-    nextTurn(gameId) { 
-        let game = this.getGameFactory(gameId);
+    nextTurn(roomId) { 
+        let game = this.getGameFactory(roomId);
         game.playerTurn++;
     }
 
@@ -89,10 +100,10 @@ class GameFactory {
 
     }
 
-    drawCard(playerName, gameId) {
-        let game = this.getGameFactory(gameId);
+    drawCard(playerName, roomId) {
+        let game = this.getGameFactory(roomId);
         let cardDraw = game.desk[game.desk.length-1]; 
-        let playerTurn = this.getPlayerTurn(gameId);
+        let playerTurn = this.getPlayerTurn(roomId);
         
         game.desk = game.desk.slice(0, game.desk.length -1); 
         playerTurn.cards.push(cardDraw);
