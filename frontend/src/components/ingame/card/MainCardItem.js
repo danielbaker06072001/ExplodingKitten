@@ -1,13 +1,39 @@
 import styled from "styled-components";
+import { useContext } from "react";
+import { GameContext } from "../../../context/GameProvider";
+import deck from "../../../assets/img/deck.png"
+import SpecialOne from "../../../assets/img/special_one.png"
+import SpecialTwo from "../../../assets/img/special_two.png"
+import SpecialThree from "../../../assets/img/special_three.png"
+import SpecialFour from "../../../assets/img/special_four.png"
+import SpecialFive from "../../../assets/img/special_five.png"
+import Shuffle from "../../../assets/img/shuffle.png"
+import Favor from "../../../assets/img/favor.png"
+import ExplodingKitten from "../../../assets/img/explode.png"
+import Skip from "../../../assets/img/skip.png"
+import Attack from "../../../assets/img/attack.png"
+import SeeTheFuture from "../../../assets/img/see_the_future.png"
+import Nope from "../../../assets/img/nope.png"
+import Defuse from "../../../assets/img/defuse.png"
 
 const CardItem = (props) => {
-    function activeCard(e) { 
+    const { currentSelectedCard, setCurrentSelectedCard } = useContext(GameContext);
+
+    function activeCard(e) {
         e.target.classList.toggle("show");
+
+        if (e.target.classList.contains("show")) {
+            currentSelectedCard.push(e.target.dataset.type);
+        }else {
+            let tempArray = currentSelectedCard;
+            tempArray  = tempArray.splice(tempArray.indexOf(e.target.dataset.type), 1);
+            setCurrentSelectedCard(tempArray);
+        }
     }
 
     return(
-        <CardItemStyle className={props.id}  onClick = {(e) => activeCard(e)} style={{left: props.index * 50}} >
-            {props.id}
+        <CardItemStyle data-type={props.type} className={props.type}  onClick = {(e) => activeCard(e)} style={{left: props.index * 50}} >
+            {props.type}
         </CardItemStyle>
     );
 };
@@ -16,41 +42,60 @@ export default CardItem;
 
 const CardItemStyle = styled.div`
     position: absolute;
-    height: 200px;
-    width: 125px;
+    width: 138px;
+    height: 199px;
+    background-size: cover;
 
     &.DEFUSE {
-        background-color: green;
+        background-image: url(${Defuse});
     }
 
     &.SKIP {
-        background-color: blue;
+        background-image: url(${Skip});
     }
 
     &.ATTACK {
-        background-color: yellow;
+        background-image: url(${Attack});
     }
 
     &.SEE_THE_FUTURE {
-        background-color: purple;
+        background-image: url(${SeeTheFuture});
     }
 
-    &.EXPLODE {
-        background-color: black;
+    &.EXPLODING_KITTEN {
+        background-image: url(${ExplodingKitten});
     }
 
     &.NOPE {
-        background-color: brown;
+        background-image: url(${Nope});
     }
 
-    
+    &.SHUFFLE { 
+        background-image: url(${Shuffle});
+    }
 
-    &.FAVOR {
-        background-color: green;
+    &.SPECIAL_ONE {
+        background-image: url(${SpecialOne});
+    }
+
+    &.SPECIAL_TWO {
+        background-image: url(${SpecialTwo});
+    }
+
+    &.SPECIAL_THREE {
+        background-image: url(${SpecialThree});
+    }
+
+    &.SPECIAL_FOUR {
+        background-image: url(${SpecialFour});
+    }
+
+    &.SPECIAL_FIVE {
+        background-image: url(${SpecialFive});
     }
 
     &.FAVOR {
-        background-color: green;
+        background-image: url(${Favor});
     }
 
     &:hover, &.show {

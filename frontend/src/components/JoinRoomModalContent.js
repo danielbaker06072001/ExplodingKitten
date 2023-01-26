@@ -29,7 +29,7 @@ const JoinRoomModalContent  = (props) => {
             </ModalBody>
 
             <ModalFooter> 
-                <input type="button" value="Create" onClick = {(e)=> {props.onWaitingButtonClickForPlayer(username, roomID)}}/>
+                <input type="button" value="Join" onClick = {(e)=> {props.onWaitingButtonClickForPlayer(username, roomID)}}/>
             </ModalFooter>
         </ModalContent>
     );

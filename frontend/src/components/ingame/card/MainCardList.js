@@ -7,7 +7,7 @@ const MainCardList = (props) => {
             {
                 props.cards.map((element, i) => {
                     return (
-                        <MainCardItem key={i} id={element} index={i}>  </MainCardItem>
+                        <MainCardItem key={i} type={element} data-type={element} index={i} socket = {props.socket}>  </MainCardItem>
                     )
                 })
             }

@@ -12,6 +12,7 @@ const MainPlayerPosition = (props) => {
     const socket = useSocket();
     const { username, roomId } = useContext(GlobalContext);
     const { gameData } = useContext(GameContext);
+    const { currentSelectedCard, setCurrentSelectedCard } = useContext(GameContext);
     
     const player = gameData.players.find((player) => 
         player.username === username
@@ -19,10 +20,11 @@ const MainPlayerPosition = (props) => {
 
     function requestPlayCard() { 
         socket.emit("request", {
-            type: "REQUEST_PLAY_CARD",
-            data: { 
-                player: username,
-                roomId: roomId
+            type:"REQUEST_PLAY_CARD",
+            data:{
+                username: username,
+                roomId: roomId,
+                cards: currentSelectedCard
             }
         });
     }
@@ -31,7 +33,7 @@ const MainPlayerPosition = (props) => {
         socket.emit("request", {
             type: "REQUEST_DRAW_CARD", 
             data:{ 
-                player: username,
+                username: username,
                 roomId: roomId
             }
         });
@@ -40,7 +42,7 @@ const MainPlayerPosition = (props) => {
     return (
         <Wrapper>
             <Content>
-                <MainCardList cards={player.cards} />
+                <MainCardList cards={player.cards} socket = {socket}/>
 
                 <ButtonWrapper>
                     {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}

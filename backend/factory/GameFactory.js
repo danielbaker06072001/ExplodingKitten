@@ -21,7 +21,83 @@ class GameData {
         this.owner  = data.owner;
         this.players  = data.players;
         this.playerTurn  = data.playerTurn;
-        this.historyTurn = data.historyTurn;
+        this.turnHistory = data.turnHistory;
+    }
+
+    drawCard(username) {
+        let cardDraw = this.desk[this.desk.length-1]; 
+        let playerTurn = this.getPlayerByUsername(username);
+        
+        this.desk = this.desk.slice(0, this.desk.length -1); 
+        this.playerTurn.cards.push(cardDraw);
+    }
+
+    
+    startGame() {
+        this.status = "STARTING";
+        this.generateGameDesk();
+    }
+    
+    generateGameDesk() {
+        for(let i = 0; i < this.players.length*4; i++) {
+            let playerTurn = this.players[i%this.players.length];
+
+            playerTurn.cards.push(this.desk.pop());
+            this.desk = this.desk.slice(0, this.desk.length -1);
+        }
+    }
+    
+    getPlayerByUsername(username) {
+        return this.players.find(element => element.username === username);
+    }
+
+    getPlayerTurn() {
+        return this.players[this.playerTurn%this.players.length];
+    }
+
+    isPlayerTurn(username) {
+        let playerTurn = this.getPlayerTurn();
+        return playerTurn.username === username;
+    }
+
+    nextTurn() { 
+        this.playerTurn++;
+    }
+    
+    drawCard(username) {
+        let cardDraw = this.desk[this.desk.length-1]; 
+        let playerTurn = this.getPlayerTurn(this.roomId);
+        
+        this.desk = this.desk.slice(0, this.desk.length -1); 
+        playerTurn.cards.push(cardDraw);
+    }
+
+    playCard(username, cards) { 
+        let playerTurn = this.getPlayerByUsername(username);
+        console.log(playerTurn.cards, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        playerTurn.cards = this.removeItemAll(playerTurn.cards, cards);
+        console.log(playerTurn.cards);
+    }
+
+    getTurnHistory() { 
+        return turnHistory;
+    }
+    
+    removeItemAll(arr1, arr2) {
+        return arr1.filter(function(item) {
+            return arr2.indexOf(item) === -1;
+        });
+    }
+
+    callUpdateGame(gameSocket) {
+        gameSocket.forEach((socket) => {
+            socket.emit("response", {
+                type: 'RESPONSE_UPDATE_GAME',
+                data: {
+                    game: this
+                }
+            });
+        });
     }
 }
 class GameFactory {
@@ -46,8 +122,9 @@ class GameFactory {
                 owner: {},
                 players: [],
                 playerTurn: 0,
-                historyTurn: []
+                turnHistory: []
             });
+
             const gameSocket = [];
 
             this.gameData[roomId] = game;
@@ -62,53 +139,6 @@ class GameFactory {
             return gameSocket;
         }
         return null;
-    }
-
-    startGame(roomId) {
-        let game = this.getGameFactory(roomId);
-        game.status = "STARTING";
-        
-        this.generateGameDesk(roomId);
-    }
-    
-    generateGameDesk(roomId) {
-        let game = this.getGameFactory(roomId);
-        for(let i = 0; i < game.players.length*4; i++) {
-            let playerTurn = game.players[i%game.players.length];
-
-            playerTurn.cards.push(game.desk.pop());
-            game.desk = game.desk.slice(0, game.desk.length -1);
-        }
-    }
-
-    getPlayerTurn(roomId) { 
-        let game = this.getGameFactory(roomId);
-        return game.players[game.playerTurn%game.players.length];
-    }
-
-    isPlayerTurn(playerName, roomId) {
-        let playerTurn = this.getPlayerTurn(roomId);
-        return playerTurn.username === playerName;
-    }
-
-    nextTurn(roomId) { 
-        let game = this.getGameFactory(roomId);
-        game.playerTurn++;
-    }
-
-    getPlayCard() { 
-
-    }
-
-    drawCard(playerName, roomId) {
-        let game = this.getGameFactory(roomId);
-        let cardDraw = game.desk[game.desk.length-1]; 
-        let playerTurn = this.getPlayerTurn(roomId);
-        
-        game.desk = game.desk.slice(0, game.desk.length -1); 
-        playerTurn.cards.push(cardDraw);
-
-        console.log("DRAW ", playerName, cardDraw);
     }
 };
 

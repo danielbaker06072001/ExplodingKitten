@@ -15,6 +15,7 @@ export const useSocket = (props) => {
         startGame, setStartGame
     } = useContext(GlobalContext);
 
+
     const { 
         gameData, setGameData,
     } = useContext(GameContext);
@@ -23,6 +24,8 @@ export const useSocket = (props) => {
     socket.on("response", (arg) => {
         const type = arg.type;
         const data = arg.data;
+
+        console.log(type, data);
 
         switch(type) {
             case "RESPONSE_JOIN_OWNER":
@@ -43,7 +46,9 @@ export const useSocket = (props) => {
             case "RESPONSE_START_GAME":
                 responseStartGame(data);
                 break;
-        
+            case "RESPONSE_UPDATE_GAME":
+                responseUpdateGame(data);
+                break;
             default:
                 break;
             }
@@ -52,8 +57,6 @@ export const useSocket = (props) => {
         
     function responseJoinOwner(data) { 
         let gameData = data.game;
-
-        console.log(gameData);
 
         setModalType('WAITING');
         setOwner(gameData.owner);
@@ -74,10 +77,20 @@ export const useSocket = (props) => {
     }
 
     function responseStartGame(data) { 
-        console.log(">>>>>>>>>>>>>>>")
+        let status = data.status;
+
+        if (status === "ALREADY_START_GAME") {
+            alert("Game has already started");
+            return;
+        }
+
         setGameData(data.game);
         setStartGame(true);
     };
+
+    function responseUpdateGame(data){ 
+        setGameData(data.game);   
+    }
 
     /*
         Game DATA 
@@ -98,7 +111,6 @@ export const useSocket = (props) => {
             alert("Not your turn");
         }
     };
-
 
     return socket;
 };

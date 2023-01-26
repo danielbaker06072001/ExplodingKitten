@@ -6,11 +6,13 @@ export const GameContext = createContext({});
 
 const GameProvider = ({children}) => {
     const [gameData, setGameData] = useState(null);
+    const [currentSelectedCard, setCurrentSelectedCard] = useState([]);
 
     return(
         <GameContext.Provider
             value={{
-                gameData, setGameData
+                gameData, setGameData,
+                currentSelectedCard, setCurrentSelectedCard
             }}>
             {children}
         </GameContext.Provider>

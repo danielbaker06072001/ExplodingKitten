@@ -41,10 +41,10 @@ const gameFactory = new GameFactory();
 
 io.on("connection", (socket) => {
     socket.on("request", (arg) => {
-        console.log(arg);
-
         const type = arg.type;
         const data = arg.data;
+
+        console.log(type, data)
 
         switch(type) {
             case "REQUEST_START_GAME":
@@ -62,7 +62,6 @@ io.on("connection", (socket) => {
             case "REQUEST_DRAW_CARD":
                 requestDrawCard(data);
                 break;
-            
             default:
                 break;
         }
@@ -70,14 +69,30 @@ io.on("connection", (socket) => {
 
     function requestStartGame(data) {
         const id = data.roomId;
-        gameFactory.startGame(id);
-
+        
         let game = gameFactory.getGameFactory(id);
         let gameSocket = gameFactory.getGameSocketFactory(id);
+        
+        if (game.status === "STARTING"){ 
+            gameSocket.forEach((socket) => {
+                socket.emit("response", {
+                    type: 'RESPONSE_START_GAME',
+                    data: {
+                        status: "ALREADY_START_GAME",
+                        game: game
+                    }
+                });
+            });
+            return;
+        }
+
+        game.startGame();
+
         gameSocket.forEach((socket) => {
             socket.emit("response", {
                 type: 'RESPONSE_START_GAME',
                 data: {
+                    status: "SUCCESS",
                     game: game
                 }
             });
@@ -118,7 +133,6 @@ io.on("connection", (socket) => {
             let playerData = {};
             playerData.username = player;
             playerData.cards = [];
-
             game.players.push(playerData);
             gameSocket.push(socket);
 
@@ -150,11 +164,22 @@ io.on("connection", (socket) => {
     // })
 
     function requestPlayCard(data) {
-        let player = data.player;
+        let username = data.username;
         let roomId = data.roomId;
+        let cards = data.cards;
 
-        if (gameFactory.isPlayerTurn(player, roomId)) {
-            // socket.emit("responsePlayCard", {status: "YOUR_TURN", cardPlay : });
+        let game = gameFactory.getGameFactory(roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
+        if (game.isPlayerTurn(username)) {
+            socket.emit("response", {
+                type: "RESPONSE_PLAY_CARD",
+                data: {
+                    status: "YOUR_TURN"
+                }
+            });
+            
+            game.playCard(username, cards);
+            game.callUpdateGame(gameSocket);
         }else {
             socket.emit("response", {
                 type: "RESPONSE_PLAY_CARD",
@@ -164,14 +189,15 @@ io.on("connection", (socket) => {
             });
         }
     }
-
+    
     function requestDrawCard(data) {
-        let player = data.player;
+        let username = data.username;
         let roomId = data.roomId;
 
         let game = gameFactory.getGameFactory(roomId);
-        if (gameFactory.isPlayerTurn(player, roomId)) {
-            gameFactory.drawCard(player, roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
+        if (game.isPlayerTurn(username)) {
+            game.drawCard();
             socket.emit("response", {
                 type: "RESPONSE_DRAW_CARD",
                 data: {
@@ -179,9 +205,11 @@ io.on("connection", (socket) => {
                     game: game
                 }
             });
-            gameFactory.nextTurn(roomId);
+
+            game.callUpdateGame(gameSocket);
+            
+            game.nextTurn();
         }else {
-            console.log("DRAW OTHER TURN");
             socket.emit("response", {
                 type: "RESPONSE_DRAW_CARD",
                 data: {
