@@ -12,7 +12,8 @@ const MainPlayerPosition = (props) => {
     const socket = useSocket();
     const { username, roomId } = useContext(GlobalContext);
     const { gameData } = useContext(GameContext);
-    const { currentSelectedCard, setCurrentSelectedCard } = useContext(GameContext);
+    const { currentSelectedCardType, setCurrentSelectedCardType } = useContext(GameContext);
+    const { currentSelectedCardIndex, setCurrentSelectedCardIndex } = useContext(GameContext);
     
     const player = gameData.players.find((player) => 
         player.username === username
@@ -24,7 +25,8 @@ const MainPlayerPosition = (props) => {
             data:{
                 username: username,
                 roomId: roomId,
-                cards: currentSelectedCard
+                cards: currentSelectedCardType,
+                cardIndexes: currentSelectedCardIndex,
             }
         });
     }

@@ -17,22 +17,30 @@ import Nope from "../../../assets/img/nope.png"
 import Defuse from "../../../assets/img/defuse.png"
 
 const CardItem = (props) => {
-    const { currentSelectedCard, setCurrentSelectedCard } = useContext(GameContext);
+    const { currentSelectedCardType, setCurrentSelectedCardType } = useContext(GameContext);
+    const { currentSelectedCardIndex, setCurrentSelectedCardIndex } = useContext(GameContext);
 
     function activeCard(e) {
         e.target.classList.toggle("show");
 
         if (e.target.classList.contains("show")) {
-            currentSelectedCard.push(e.target.dataset.type);
+            currentSelectedCardType.push(e.target.dataset.type);
+            currentSelectedCardIndex.push(e.target.dataset.index);
         }else {
-            let tempArray = currentSelectedCard;
-            tempArray  = tempArray.splice(tempArray.indexOf(e.target.dataset.type), 1);
-            setCurrentSelectedCard(tempArray);
+            let tempTypeArray = currentSelectedCardType;
+            tempTypeArray.splice(tempTypeArray.indexOf(e.target.dataset.type), 1);
+
+            let tempIndexArray = currentSelectedCardIndex;
+            tempIndexArray.splice(tempIndexArray.indexOf(e.target.dataset.index), 1);
+
+
+            setCurrentSelectedCardType(tempTypeArray);
+            setCurrentSelectedCardIndex(tempIndexArray);
         }
     }
 
     return(
-        <CardItemStyle data-type={props.type} className={props.type}  onClick = {(e) => activeCard(e)} style={{left: props.index * 50}} >
+        <CardItemStyle data-index={props.index} data-type={props.type} className={props.type}  onClick = {(e) => activeCard(e)} style={{left: props.index * 50}} >
             {props.type}
         </CardItemStyle>
     );

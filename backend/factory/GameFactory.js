@@ -13,6 +13,28 @@ Total cards: 56
 - Special card: 20 (5 types - 4 each)
 */
 
+
+/**
+ * Single Card (My turn)
+ * - See the future
+ * - Favor
+ * - Shuffle
+ * - Attack
+ * - Skip
+ * 
+ * Single Card (Enemy turn)
+ * - Nope
+ * 
+ * Two of a kind
+ * - 2x Special card
+ * 
+ * Three of a kind
+ * - 3x Card
+ * 
+ * 5 Different Cards
+ * - 1x Every Special Card
+ */
+
 class GameData {
     constructor(data) {
         this.roomId  = data.roomId;
@@ -72,21 +94,21 @@ class GameData {
         playerTurn.cards.push(cardDraw);
     }
 
-    playCard(username, cards) { 
+    playCard(username, cards, cardIndexes) { 
         let playerTurn = this.getPlayerByUsername(username);
-        console.log(playerTurn.cards, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        playerTurn.cards = this.removeItemAll(playerTurn.cards, cards);
-        console.log(playerTurn.cards);
+        playerTurn.cards = this.removeItemOnce(playerTurn.cards, cardIndexes);
     }
 
     getTurnHistory() { 
         return turnHistory;
     }
     
-    removeItemAll(arr1, arr2) {
-        return arr1.filter(function(item) {
-            return arr2.indexOf(item) === -1;
+    removeItemOnce(playerCards, cardIndexes) {
+        cardIndexes = cardIndexes.slice().sort((a,b)=>a-b).reverse();
+        cardIndexes.forEach(element => {
+            playerCards.splice(element, 1);
         });
+        return playerCards;
     }
 
     callUpdateGame(gameSocket) {
@@ -100,6 +122,7 @@ class GameData {
         });
     }
 }
+
 class GameFactory {
     constructor() {
         this.gameData = {};
@@ -145,14 +168,14 @@ class GameFactory {
 function generateDesk () { 
     let arr = [];
     
-    arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
-    arr = arr.concat(generateDeckByAmount("DEFUSE",6));
-    arr = arr.concat(generateDeckByAmount("NOPE",5));
-    arr = arr.concat(generateDeckByAmount("SKIP",4));
-    arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
-    arr = arr.concat(generateDeckByAmount("FAVOR",4));
-    arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
-    arr = arr.concat(generateDeckByAmount("ATTACK",4));
+    // arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
+    // arr = arr.concat(generateDeckByAmount("DEFUSE",6));
+    // arr = arr.concat(generateDeckByAmount("NOPE",5));
+    // arr = arr.concat(generateDeckByAmount("SKIP",4));
+    // arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
+    // arr = arr.concat(generateDeckByAmount("FAVOR",4));
+    // arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
+    // arr = arr.concat(generateDeckByAmount("ATTACK",4));
     
     arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
     arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));

@@ -6,13 +6,15 @@ export const GameContext = createContext({});
 
 const GameProvider = ({children}) => {
     const [gameData, setGameData] = useState(null);
-    const [currentSelectedCard, setCurrentSelectedCard] = useState([]);
+    const [currentSelectedCardType, setCurrentSelectedCardType] = useState([]);
+    const [currentSelectedCardIndex, setCurrentSelectedCardIndex] = useState([]);
 
     return(
         <GameContext.Provider
             value={{
                 gameData, setGameData,
-                currentSelectedCard, setCurrentSelectedCard
+                currentSelectedCardType, setCurrentSelectedCardType,
+                currentSelectedCardIndex, setCurrentSelectedCardIndex
             }}>
             {children}
         </GameContext.Provider>

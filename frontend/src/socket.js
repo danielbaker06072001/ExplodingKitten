@@ -18,6 +18,8 @@ export const useSocket = (props) => {
 
     const { 
         gameData, setGameData,
+        currentSelectedCardType, setCurrentSelectedCardType,
+        currentSelectedCardTypeIndex, setCurrentSelectedCardIndex
     } = useContext(GameContext);
     const socket = io('ws://localhost:8080', { transports : ['websocket'] });
 
@@ -97,8 +99,12 @@ export const useSocket = (props) => {
     */
     
     function responsePlayCard(data) {
+        console.log(data.cardTurnType);
+
         if (data.status === "YOUR_TURN") {
             alert("your turn");
+            setCurrentSelectedCardType([]);
+            setCurrentSelectedCardIndex([]);
         }else {
             alert("Not your turn");
         }

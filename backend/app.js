@@ -36,7 +36,10 @@ const io = new Server(8080,
     }
 );
 
+const GameUtils = require('./utils/GameUtils');
 const GameFactory = require('./factory/GameFactory');
+
+const gameUtils = new GameUtils();
 const gameFactory = new GameFactory();
 
 io.on("connection", (socket) => {
@@ -167,18 +170,22 @@ io.on("connection", (socket) => {
         let username = data.username;
         let roomId = data.roomId;
         let cards = data.cards;
+        let cardIndexes = data.cardIndexes;
 
         let game = gameFactory.getGameFactory(roomId);
         let gameSocket = gameFactory.getGameSocketFactory(roomId);
         if (game.isPlayerTurn(username)) {
+            let cardTurnType = gameUtils.getCardTurnType(cards);
+
             socket.emit("response", {
                 type: "RESPONSE_PLAY_CARD",
                 data: {
-                    status: "YOUR_TURN"
+                    status: "YOUR_TURN",
+                    cardTurnType: cardTurnType
                 }
             });
             
-            game.playCard(username, cards);
+            game.playCard(username, cards, cardIndexes);
             game.callUpdateGame(gameSocket);
         }else {
             socket.emit("response", {
