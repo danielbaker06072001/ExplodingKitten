@@ -2,22 +2,20 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import CardDeskList from "./CardDeskList";
 import { popCards } from "../../../reducers/DeckReducer";
+import { GameContext } from "../../../context/GameProvider";
+import { useContext } from "react";
+import CardPrevious from "./CardPrevious";
+import CardSTF from "./CardSTF";
 
 const CardDeck = (props) => { 
-    function drawCard() {  };
-
-    function shuffleCard() {   };
-
-    function drawFromBottom() {    };
-
-    function replaceBomb(index) {   }
-
-    function peekThreeCard(){    }
+    const { gameData } = useContext(GameContext);
 
     return(
         <CardDeskStyle>
-            <CardDeskList cardSize={props.cards.length}/>
-        </CardDeskStyle>
+            <CardDeskList size={gameData.desk.length}/>
+            <CardPrevious />
+            <CardSTF />
+        </CardDeskStyle> 
     );
 };
 
@@ -50,4 +48,5 @@ const CardDeskStyle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+
 `

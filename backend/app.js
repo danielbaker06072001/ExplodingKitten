@@ -175,18 +175,7 @@ io.on("connection", (socket) => {
         let game = gameFactory.getGameFactory(roomId);
         let gameSocket = gameFactory.getGameSocketFactory(roomId);
         if (game.isPlayerTurn(username)) {
-            let cardTurnType = gameUtils.getCardTurnType(cards);
-
-            socket.emit("response", {
-                type: "RESPONSE_PLAY_CARD",
-                data: {
-                    status: "YOUR_TURN",
-                    cardTurnType: cardTurnType
-                }
-            });
-            
-            game.playCard(username, cards, cardIndexes);
-            game.callUpdateGame(gameSocket);
+            gameUtils.handlePlayCard(username, cards, cardIndexes, socket, game, gameSocket);
         }else {
             socket.emit("response", {
                 type: "RESPONSE_PLAY_CARD",
@@ -213,9 +202,8 @@ io.on("connection", (socket) => {
                 }
             });
 
-            game.callUpdateGame(gameSocket);
-            
             game.nextTurn();
+            game.callUpdateGame(gameSocket);
         }else {
             socket.emit("response", {
                 type: "RESPONSE_DRAW_CARD",

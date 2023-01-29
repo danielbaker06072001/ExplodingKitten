@@ -14,6 +14,7 @@ import { useSocket } from "../socket";
 import { useContext } from "react";
 import { GameContext } from "../context/GameProvider";
 import { GlobalContext } from "../context/GlobalProvider";
+import Table from '../assets/img/table.jpg'
 
 const IngamePage = (props) => { 
     const socket = useSocket();
@@ -28,7 +29,7 @@ const IngamePage = (props) => {
     } = useContext(GlobalContext);
 
     return(
-        <div style={{maxHeight: "100vh", overflow: "hidden"}}> 
+        <div style={{maxHeight: "100vh", overflow: "hidden", background: `url(${Table})`, backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundSize: "cover"}}> 
             <PlayerPosition />
             <CardDeck />
         </div>

@@ -48,6 +48,7 @@ const MainPlayerPosition = (props) => {
 
                 <ButtonWrapper>
                     {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                    <ButtonStyle> {gameData.currentTurnUsername === username ? "Your turn left: " + gameData.currentTurnDraw : gameData.currentTurnUsername + " Left: " + gameData.currentTurnDraw } </ButtonStyle>
                     <ButtonStyle onClick={(e) => {requestDrawCard()}}>Draw Card</ButtonStyle>
                     <ButtonStyle onClick = {(e) => {requestPlayCard()}}>Play Card</ButtonStyle>
                 </ButtonWrapper>
@@ -102,8 +103,4 @@ const ButtonStyle = styled.button`
         box-shadow: 0 3px #666;
         transform: translateY(3px);
     }
-`
-
-const PlayerCard = styled.div ` 
-    
 `

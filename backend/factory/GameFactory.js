@@ -44,6 +44,10 @@ class GameData {
         this.players  = data.players;
         this.playerTurn  = data.playerTurn;
         this.turnHistory = data.turnHistory;
+        this.currentTurnDraw = 1;
+        this.nextTurnDraw = 1;
+        this.currentTurnUsername = null;
+        this.seeTheFuture = false;
     }
 
     drawCard(username) {
@@ -57,6 +61,7 @@ class GameData {
     
     startGame() {
         this.status = "STARTING";
+        this.currentTurnUsername = this.getPlayerTurn().username;
         this.generateGameDesk();
     }
     
@@ -83,7 +88,16 @@ class GameData {
     }
 
     nextTurn() { 
-        this.playerTurn++;
+        this.currentTurnDraw--;
+        
+        console.log(this.nextTurnDraw);
+
+        if (this.currentTurnDraw == 0) {
+            this.playerTurn++;
+            this.currentTurnDraw = this.nextTurnDraw;
+        }else {
+            this.nextTurnDraw = 1;
+        }
     }
     
     drawCard(username) {
@@ -92,11 +106,15 @@ class GameData {
         
         this.desk = this.desk.slice(0, this.desk.length -1); 
         playerTurn.cards.push(cardDraw);
+
+        this.seeTheFuture = false;
     }
 
     playCard(username, cards, cardIndexes) { 
         let playerTurn = this.getPlayerByUsername(username);
         playerTurn.cards = this.removeItemOnce(playerTurn.cards, cardIndexes);
+
+        this.turnHistory.push(cards);
     }
 
     getTurnHistory() { 
@@ -112,6 +130,8 @@ class GameData {
     }
 
     callUpdateGame(gameSocket) {
+        this.currentTurnUsername = this.getPlayerTurn().username;
+
         gameSocket.forEach((socket) => {
             socket.emit("response", {
                 type: 'RESPONSE_UPDATE_GAME',
@@ -168,20 +188,20 @@ class GameFactory {
 function generateDesk () { 
     let arr = [];
     
-    // arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
+    arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 50));
     // arr = arr.concat(generateDeckByAmount("DEFUSE",6));
     // arr = arr.concat(generateDeckByAmount("NOPE",5));
-    // arr = arr.concat(generateDeckByAmount("SKIP",4));
+    arr = arr.concat(generateDeckByAmount("SKIP",4));
     // arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
     // arr = arr.concat(generateDeckByAmount("FAVOR",4));
-    // arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
-    // arr = arr.concat(generateDeckByAmount("ATTACK",4));
+    arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
+    arr = arr.concat(generateDeckByAmount("ATTACK",4));
     
-    arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
     
     arr.sort((a,b) => 0.5 - Math.random());
     return arr;

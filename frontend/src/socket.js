@@ -99,7 +99,10 @@ export const useSocket = (props) => {
     */
     
     function responsePlayCard(data) {
-        console.log(data.cardTurnType);
+        if (data.status === "INVALID") {
+            alert("invalid card");
+            return;
+        }
 
         if (data.status === "YOUR_TURN") {
             alert("your turn");

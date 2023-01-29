@@ -4,7 +4,7 @@ const CardDeskList = (props) => {
     return(
         <CardDeskListStyle>
             <CardStyle> 
-                {props.cardSize}
+                {props.size}
             </CardStyle>
         </CardDeskListStyle>
     );
