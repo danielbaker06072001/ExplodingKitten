@@ -65,6 +65,12 @@ io.on("connection", (socket) => {
             case "REQUEST_DRAW_CARD":
                 requestDrawCard(data);
                 break;
+            case "REQUEST_PLAY_NOPE":
+                requestPlayNope(data);
+                break;
+            case "REQUEST_PASS_NOPE":
+                requestPassNope(data);
+                break;
             default:
                 break;
         }
@@ -175,7 +181,7 @@ io.on("connection", (socket) => {
         let game = gameFactory.getGameFactory(roomId);
         let gameSocket = gameFactory.getGameSocketFactory(roomId);
         if (game.isPlayerTurn(username)) {
-            gameUtils.handlePlayCard(username, cards, cardIndexes, socket, game, gameSocket);
+            gameUtils.handlePostPlayCard(username, cards, cardIndexes, socket, game, gameSocket);
         }else {
             socket.emit("response", {
                 type: "RESPONSE_PLAY_CARD",
@@ -213,6 +219,84 @@ io.on("connection", (socket) => {
             });
         }
     }
+
+    function requestPlayNope(data) {
+        let username = data.username;
+        let roomId = data.roomId;
+        
+        let game = gameFactory.getGameFactory(roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
+        let nopeEffect = game.nopeTurn % 2 == 0;
+
+        let playerTurn = game.getPlayerByUsername(username);
+        if (!playerTurn.cards.includes("NOPE")) {
+            socket.emit("response", {
+                type: "RESPONSE_PLAY_NOPE",
+                data: {
+                    status: "NO_NOPE"
+                }
+            });
+            return;
+        }
+
+        if (nopeEffect && username === game.currentTurnUsername) {
+            socket.emit("response", {
+                type: "RESPONSE_PLAY_NOPE",
+                data: {
+                    status: "CANNOT_NOPE"
+                }
+            });
+            return;
+        }
+
+        if (!nopeEffect && username !== game.currentTurnUsername) {
+            socket.emit("response", {
+                type: "RESPONSE_PLAY_NOPE",
+                data: {
+                    status: "CANNOT_NOPE"
+                }
+            });
+            return;
+        } 
+        
+        game.nopeTurn++;
+        socket.emit("response", {
+            type: "RESPONSE_PLAY_NOPE",
+            data: {
+                status: "SUCCESS"
+            }
+        });
+        game.removeNope(username);
+        game.turnHistory[game.turnHistory.length - 1].push("NOPE");
+        game.callUpdateGame(gameSocket);
+    }
+
+    function requestPassNope(data){ 
+        let username = data.username;
+        let roomId = data.roomId;
+
+        let game = gameFactory.getGameFactory(roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
+
+        if (!game.passNopePlayers.includes(game.currentTurnUsername)) {
+            game.passNopePlayers.push(game.currentTurnUsername);
+        }
+
+        if (!game.passNopePlayers.includes(username)) {
+            game.passNopePlayers.push(username);
+        }
+
+        let noNopeEffect = game.nopeTurn % 2 == 0;
+
+        if (game.checkAllNopePass() && noNopeEffect) {
+            game.nopeTurn = 0;
+            game.passNopePlayers = [];
+
+            gameUtils.handlePrePlayCard(username, game.lastCards, game.lastCardIndexes, socket, game, gameSocket);
+        }
+    }
+
+
 })
 
 const port = process.env.PORT || 8082;

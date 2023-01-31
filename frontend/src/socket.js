@@ -51,6 +51,9 @@ export const useSocket = (props) => {
             case "RESPONSE_UPDATE_GAME":
                 responseUpdateGame(data);
                 break;
+            case "RESPONSE_PLAY_NOPE":
+                responsePlayNope(data);
+                break;
             default:
                 break;
             }
@@ -105,7 +108,6 @@ export const useSocket = (props) => {
         }
 
         if (data.status === "YOUR_TURN") {
-            alert("your turn");
             setCurrentSelectedCardType([]);
             setCurrentSelectedCardIndex([]);
         }else {
@@ -118,6 +120,15 @@ export const useSocket = (props) => {
             setGameData(data.game);
         }else {
             alert("Not your turn");
+        }
+    };
+
+    function responsePlayNope(data) {
+        if (data.status === "CANNOT_NOPE") {
+            alert("You cannot use nope this time!");
+        }else if (data.status === "SUCCESS") {
+        }else if (data.status === "NO_NOPE") {
+            alert("No nope card!");
         }
     };
 

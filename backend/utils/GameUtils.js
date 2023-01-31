@@ -25,13 +25,37 @@ class GameUtils {
         this.specialCardType = ["SPECIAL_ONE", "SPECIAL_TWO", "SPECIAL_THREE", "SPECIAL_FOUR", "SPECIAL_FIVE"];
     }
 
-    handlePlayCard(username, cards, cardIndexes, socket, game, gameSocket) {
+    handlePostPlayCard(username, cards, cardIndexes, socket, game, gameSocket) {
         let cardTurnType = this.getCardTurnType(cards);
-
         if (cardTurnType === "INVALID") {
             this.handleInvalidCard(socket);
             return;
         }
+
+        
+        // Stage playing nope
+        game.postPlayCard = true;
+        game.lastCards = cards; 
+        game.lastCardIndexes = cardIndexes;
+
+        // See playing card
+        socket.emit("response", {
+            type: "RESPONSE_PLAY_CARD",
+            data: {
+                status: "YOUR_TURN",
+                cardTurnType: cardTurnType
+            }
+        });
+
+        game.playCard(username, cards, cardIndexes);
+        game.callUpdateGame(gameSocket);
+    }
+
+    handlePrePlayCard(username, cards, cardIndexes, socket, game, gameSocket) {
+        let cardTurnType = this.getCardTurnType(cards);
+
+        console.log("CARD_TURN", cardTurnType, cards);
+
 
         if (cardTurnType === "SINGLE") {
             if (cards[0] === "SKIP") {
@@ -50,16 +74,7 @@ class GameUtils {
                 this.handleSeeTheFuture(game, socket);
             }
         }
-
-        socket.emit("response", {
-            type: "RESPONSE_PLAY_CARD",
-            data: {
-                status: "YOUR_TURN",
-                cardTurnType: cardTurnType
-            }
-        });
         
-        game.playCard(username, cards, cardIndexes);
         game.callUpdateGame(gameSocket);
     }
 

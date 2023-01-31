@@ -48,6 +48,11 @@ class GameData {
         this.nextTurnDraw = 1;
         this.currentTurnUsername = null;
         this.seeTheFuture = false;
+        this.nopeTurn = 0;
+        this.postPlayCard = false;
+        this.passNopePlayers = [];
+        this.lastCards = []; 
+        this.lastCardIndexes = [];
     }
 
     drawCard(username) {
@@ -58,6 +63,15 @@ class GameData {
         this.playerTurn.cards.push(cardDraw);
     }
 
+    checkAllNopePass() { 
+        let check = true;
+        this.players.forEach(player => {
+            if(!this.passNopePlayers.includes(player.username)){
+                check = false;
+            }
+        });
+        return check;
+    }
     
     startGame() {
         this.status = "STARTING";
@@ -90,7 +104,7 @@ class GameData {
     nextTurn() { 
         this.currentTurnDraw--;
         
-        console.log(this.nextTurnDraw);
+        this.nopeTurn = 0;
 
         if (this.currentTurnDraw == 0) {
             this.playerTurn++;
@@ -114,7 +128,7 @@ class GameData {
         let playerTurn = this.getPlayerByUsername(username);
         playerTurn.cards = this.removeItemOnce(playerTurn.cards, cardIndexes);
 
-        this.turnHistory.push(cards);
+        this.turnHistory.push([...cards]);
     }
 
     getTurnHistory() { 
@@ -140,6 +154,11 @@ class GameData {
                 }
             });
         });
+    }
+
+    removeNope(username) { 
+        let playerTurn = this.getPlayerByUsername(username);
+        playerTurn.cards.splice(playerTurn.cards.indexOf("NOPE"), 1);    
     }
 }
 
@@ -190,12 +209,12 @@ function generateDesk () {
     
     arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 50));
     // arr = arr.concat(generateDeckByAmount("DEFUSE",6));
-    // arr = arr.concat(generateDeckByAmount("NOPE",5));
-    arr = arr.concat(generateDeckByAmount("SKIP",4));
+    arr = arr.concat(generateDeckByAmount("NOPE",50));
+    // arr = arr.concat(generateDeckByAmount("SKIP",4));
     // arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
     // arr = arr.concat(generateDeckByAmount("FAVOR",4));
-    arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
-    arr = arr.concat(generateDeckByAmount("ATTACK",4));
+    // arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
+    // arr = arr.concat(generateDeckByAmount("ATTACK",4));
     
     // arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
     // arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));

@@ -41,7 +41,6 @@ const CardItem = (props) => {
 
     return(
         <CardItemStyle data-index={props.index} data-type={props.type} className={props.type}  onClick = {(e) => activeCard(e)} style={{left: props.index * 50}} >
-            {props.type}
         </CardItemStyle>
     );
 };
@@ -53,6 +52,7 @@ const CardItemStyle = styled.div`
     width: 138px;
     height: 199px;
     background-size: cover;
+    border-radius:  5px ;
 
     &.DEFUSE {
         background-image: url(${Defuse});

@@ -41,9 +41,35 @@ const MainPlayerPosition = (props) => {
         });
     }
 
+    function requestPlayNope() { 
+        socket.emit("request", {
+            type: "REQUEST_PLAY_NOPE", 
+            data:{ 
+                username: username,
+                roomId: roomId
+            }
+        });
+    }
+
+    function requestPassNope() { 
+        socket.emit("request", {
+            type: "REQUEST_PASS_NOPE", 
+            data:{ 
+                username: username,
+                roomId: roomId
+            }
+        });
+    }
+
     return (
         <Wrapper>
             <Content>
+                <NopeWrapper>
+                    {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                    <ButtonStyle onClick={(e) => {requestPlayNope()}}>Nope</ButtonStyle>
+                    <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
+                </NopeWrapper>
+
                 <MainCardList cards={player.cards} socket = {socket}/>
 
                 <ButtonWrapper>
@@ -76,13 +102,24 @@ const Content  = styled.div`
   height: 100%;
 `
 
+const NopeWrapper = styled.div`
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    left: 0px;
+    height: 100%;
+    gap: 50px;
+    padding: 25px 50px;   
+    align-items : center;
+`
+
 const ButtonWrapper = styled.div`
     position: absolute;
     display: flex;
     flex-direction: column;
     right: 0px;
     height: 100%;
-    gap: 50px;
+    gap: 25px;
     padding: 25px 50px;   
     align-items : center;
 `
