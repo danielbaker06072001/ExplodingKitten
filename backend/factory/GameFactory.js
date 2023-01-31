@@ -15,15 +15,17 @@ Total cards: 56
 
 
 /**
+ * Exploding card 
+ * 
  * Single Card (My turn)
- * - See the future
- * - Favor
- * - Shuffle
- * - Attack
- * - Skip
+ * - See the future (done)
+ * - Favor 
+ * - Shuffle (done)
+ * - Attack (done)
+ * - Skip (done)
  * 
  * Single Card (Enemy turn)
- * - Nope
+ * - Nope (done)
  * 
  * Two of a kind
  * - 2x Special card
@@ -53,14 +55,9 @@ class GameData {
         this.passNopePlayers = [];
         this.lastCards = []; 
         this.lastCardIndexes = [];
-    }
-
-    drawCard(username) {
-        let cardDraw = this.desk[this.desk.length-1]; 
-        let playerTurn = this.getPlayerByUsername(username);
-        
-        this.desk = this.desk.slice(0, this.desk.length -1); 
-        this.playerTurn.cards.push(cardDraw);
+        this.favorTurn = false;
+        this.favorTarget = null;
+        this.deadPlayers = [];
     }
 
     checkAllNopePass() { 
@@ -83,8 +80,14 @@ class GameData {
         for(let i = 0; i < this.players.length*4; i++) {
             let playerTurn = this.players[i%this.players.length];
 
-            playerTurn.cards.push(this.desk.pop());
-            this.desk = this.desk.slice(0, this.desk.length -1);
+            let card = this.desk.pop();
+            if (card !== "EXPLODING_KITTEN" ) { 
+                playerTurn.cards.push(card);
+            }else {
+                this.desk.push(card);
+                this.desk.sort((a,b) => 0.5 - Math.random());
+                i--;
+            }
         }
     }
     
@@ -93,7 +96,15 @@ class GameData {
     }
 
     getPlayerTurn() {
-        return this.players[this.playerTurn%this.players.length];
+        let playerTurnData = this.players[this.playerTurn%this.players.length];
+
+        while(playerTurnData.dead) {
+            this.playerTurn++;
+
+            playerTurnData = this.players[this.playerTurn%this.players.length];
+        }
+
+        return playerTurnData;
     }
 
     isPlayerTurn(username) {
@@ -105,6 +116,8 @@ class GameData {
         this.currentTurnDraw--;
         
         this.nopeTurn = 0;
+        this.favorTurn = false;
+        this.favorTarget = null;
 
         if (this.currentTurnDraw == 0) {
             this.playerTurn++;
@@ -122,6 +135,9 @@ class GameData {
         playerTurn.cards.push(cardDraw);
 
         this.seeTheFuture = false;
+        this.favorTurn = false;
+        this.favorTarget = null;
+        this.turnHistory = [];
     }
 
     playCard(username, cards, cardIndexes) { 
@@ -207,22 +223,23 @@ class GameFactory {
 function generateDesk () { 
     let arr = [];
     
-    arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 50));
-    // arr = arr.concat(generateDeckByAmount("DEFUSE",6));
-    arr = arr.concat(generateDeckByAmount("NOPE",50));
-    // arr = arr.concat(generateDeckByAmount("SKIP",4));
-    // arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
-    // arr = arr.concat(generateDeckByAmount("FAVOR",4));
-    // arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
-    // arr = arr.concat(generateDeckByAmount("ATTACK",4));
+    arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
+    arr = arr.concat(generateDeckByAmount("DEFUSE",6));
+    arr = arr.concat(generateDeckByAmount("NOPE",5));
+    arr = arr.concat(generateDeckByAmount("SKIP",4));
+    arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",400));
+    arr = arr.concat(generateDeckByAmount("FAVOR",4));
+    arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
+    arr = arr.concat(generateDeckByAmount("ATTACK",4));
     
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
     
     arr.sort((a,b) => 0.5 - Math.random());
+
     return arr;
 }
 

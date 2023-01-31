@@ -54,6 +54,12 @@ export const useSocket = (props) => {
             case "RESPONSE_PLAY_NOPE":
                 responsePlayNope(data);
                 break;
+            case "RESPONSE_FAVOR":
+                responseFavor(data);
+                break;
+            case "RESPONSE_GIVE_FAVOR_CARD":
+                responseGiveFavorCard(data);
+                break;
             default:
                 break;
             }
@@ -129,6 +135,23 @@ export const useSocket = (props) => {
         }else if (data.status === "SUCCESS") {
         }else if (data.status === "NO_NOPE") {
             alert("No nope card!");
+        }
+    };
+
+    function responseFavor(data) {
+        if (data.status === "ALREADY_SELECT_FAVOR") {
+            alert("You have already chosen player");
+        }
+    };
+
+
+    function responseGiveFavorCard(data) {
+        if (data.status === "TOO_MUCH") {
+            alert("You can only give single card");
+        }else if (data.status === "SUCCESS") {
+            console.log("CLEAR");
+            setCurrentSelectedCardType([]);
+            setCurrentSelectedCardIndex([]);
         }
     };
 

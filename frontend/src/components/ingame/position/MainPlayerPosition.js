@@ -61,26 +61,72 @@ const MainPlayerPosition = (props) => {
         });
     }
 
-    return (
-        <Wrapper>
-            <Content>
-                <NopeWrapper>
-                    {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
-                    <ButtonStyle onClick={(e) => {requestPlayNope()}}>Nope</ButtonStyle>
-                    <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
-                </NopeWrapper>
+    function requestGiveFavorCard() { 
+        socket.emit("request", {
+            type: "REQUEST_GIVE_FAVOR_CARD", 
+            data:{ 
+                username: username,
+                roomId: roomId,
+                cards: currentSelectedCardType,
+                cardIndexes: currentSelectedCardIndex,
+            }
+        });
+    }
 
-                <MainCardList cards={player.cards} socket = {socket}/>
 
-                <ButtonWrapper>
-                    {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
-                    <ButtonStyle> {gameData.currentTurnUsername === username ? "Your turn left: " + gameData.currentTurnDraw : gameData.currentTurnUsername + " Left: " + gameData.currentTurnDraw } </ButtonStyle>
-                    <ButtonStyle onClick={(e) => {requestDrawCard()}}>Draw Card</ButtonStyle>
-                    <ButtonStyle onClick = {(e) => {requestPlayCard()}}>Play Card</ButtonStyle>
-                </ButtonWrapper>
-            </Content>
-        </Wrapper>
-    );
+    let notice = null;
+    if (gameData.favorTurn && gameData.favorTarget === username) {
+        notice = gameData.currentTurnUsername === username ? "Your turn left: " + gameData.currentTurnDraw : gameData.currentTurnUsername + " Left: " + gameData.currentTurnDraw;
+    }else {
+        notice = gameData.currentTurnUsername === username ? "Your turn left: " + gameData.currentTurnDraw : gameData.currentTurnUsername + " Left: " + gameData.currentTurnDraw;
+    }
+
+    if (gameData.deadPlayers.includes(username)) {
+        notice = "DEAD";
+    }
+
+    if(notice !== "DEAD") { 
+        return (
+            <Wrapper>
+                <Content>
+                    <NopeWrapper>
+                        {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                        <ButtonStyle onClick={(e) => {requestPlayNope()}}>Nope</ButtonStyle>
+                        <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
+                    </NopeWrapper>
+    
+                    <MainCardList cards={player.cards} socket = {socket}/>
+    
+                    <ButtonWrapper>
+                        {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                        <ButtonStyle> { notice } </ButtonStyle>
+                        
+                        <ButtonStyle onClick={(e) => {requestDrawCard()}}>Draw Card</ButtonStyle>
+                        <ButtonStyle onClick = {(e) => {requestGiveFavorCard()}}>Favor Card</ButtonStyle>
+                    </ButtonWrapper>
+                </Content>
+            </Wrapper>
+        );
+    }else { 
+        return (
+            <Wrapper>
+                <Content>
+                    <NopeWrapper>
+                        {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                        <ButtonStyle onClick={(e) => {requestPlayNope()}}>Nope</ButtonStyle>
+                        <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
+                    </NopeWrapper>
+    
+                    <MainCardList cards={player.cards} socket = {socket}/>
+    
+                    <ButtonWrapper>
+                        {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                        <ButtonStyle> { notice } </ButtonStyle>
+                    </ButtonWrapper>
+                </Content>
+            </Wrapper>
+        );
+    }
 };
 
 export default MainPlayerPosition;

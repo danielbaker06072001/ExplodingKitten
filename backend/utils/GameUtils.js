@@ -25,6 +25,14 @@ class GameUtils {
         this.specialCardType = ["SPECIAL_ONE", "SPECIAL_TWO", "SPECIAL_THREE", "SPECIAL_FOUR", "SPECIAL_FIVE"];
     }
 
+    checkExplode(username, game, gameSocket) {
+        let playerTurn = game.getPlayerByUsername(username);
+
+        if (playerTurn.cards.includes("EXPLODING_KITTEN")) {
+            game.deadPlayers.push(username);
+        }
+    }
+
     handlePostPlayCard(username, cards, cardIndexes, socket, game, gameSocket) {
         let cardTurnType = this.getCardTurnType(cards);
         if (cardTurnType === "INVALID") {
@@ -54,9 +62,6 @@ class GameUtils {
     handlePrePlayCard(username, cards, cardIndexes, socket, game, gameSocket) {
         let cardTurnType = this.getCardTurnType(cards);
 
-        console.log("CARD_TURN", cardTurnType, cards);
-
-
         if (cardTurnType === "SINGLE") {
             if (cards[0] === "SKIP") {
                 this.handleSkipCard(game, socket);
@@ -72,6 +77,10 @@ class GameUtils {
 
             if (cards[0] === "SEE_THE_FUTURE") { 
                 this.handleSeeTheFuture(game, socket);
+            }
+
+            if (cards[0] === "FAVOR") { 
+                this.handleFavor(game, socket);
             }
         }
         
@@ -150,6 +159,10 @@ class GameUtils {
 
     handleSeeTheFuture(game, socket) { 
         game.seeTheFuture = true;
+    }
+
+    handleFavor(game, socket) { 
+        game.favorTurn = true;
     }
 }
 

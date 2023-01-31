@@ -71,6 +71,12 @@ io.on("connection", (socket) => {
             case "REQUEST_PASS_NOPE":
                 requestPassNope(data);
                 break;
+            case "REQUEST_FAVOR":
+                requestFavor(data);
+                break;
+            case "REQUEST_GIVE_FAVOR_CARD":
+                requestGiveFavorCard(data);
+                break;
             default:
                 break;
         }
@@ -200,14 +206,15 @@ io.on("connection", (socket) => {
         let gameSocket = gameFactory.getGameSocketFactory(roomId);
         if (game.isPlayerTurn(username)) {
             game.drawCard();
-            socket.emit("response", {
-                type: "RESPONSE_DRAW_CARD",
-                data: {
-                    status: "YOUR_TURN",
-                    game: game
-                }
-            });
-
+            // socket.emit("response", {
+            //     type: "RESPONSE_DRAW_CARD",
+            //     data: {
+            //         status: "YOUR_TURN",
+            //         game: game
+            //     }
+            // });
+            
+            gameUtils.checkExplode(username, game, gameSocket);
             game.nextTurn();
             game.callUpdateGame(gameSocket);
         }else {
@@ -296,7 +303,66 @@ io.on("connection", (socket) => {
         }
     }
 
+    function requestFavor(data){ 
+        let username = data.username;
+        let roomId = data.roomId;
+        let target = data.target;   
+        
+        let game = gameFactory.getGameFactory(roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
 
+        // 
+        if (game.favorTarget != null) { 
+            socket.emit("response", {
+                type: "RESPONSE_FAVOR",
+                data: {
+                    status: "ALREADY_SELECT_FAVOR"
+                }
+            });
+            return;
+        }
+
+        game.favorTarget = target;
+        game.callUpdateGame(gameSocket);
+    }
+
+    function requestGiveFavorCard(data) {
+        let username = data.username;
+        let roomId = data.roomId;
+        let cards = data.cards;
+        let cardIndexes = data.cardIndexes;
+
+        if (cards.length > 1){
+            socket.emit("response", {
+                type: "RESPONSE_GIVE_FAVOR_CARD",
+                data: {
+                    status: "TOO_MUCH"
+                }
+            });
+            return;
+        }
+
+        let game = gameFactory.getGameFactory(roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
+
+        let targetTurn = game.getPlayerByUsername(game.favorTarget);
+        game.removeItemOnce(targetTurn.cards, cardIndexes);
+
+        let playerTurn = game.getPlayerByUsername(game.currentTurnUsername);
+        playerTurn.cards.push(cards);
+
+        game.favorTurn = false;
+        game.favorTarget = null;
+
+        socket.emit("response", {
+            type: "RESPONSE_GIVE_FAVOR_CARD",
+            data: {
+                status: "SUCCESS"
+            }
+        });
+
+        game.callUpdateGame(gameSocket);
+    }
 })
 
 const port = process.env.PORT || 8082;
