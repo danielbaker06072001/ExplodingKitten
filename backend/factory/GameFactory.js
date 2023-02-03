@@ -57,6 +57,8 @@ class GameData {
         this.lastCardIndexes = [];
         this.favorTurn = false;
         this.favorTarget = null;
+        this.twoComboTurn = false;
+        this.threeComboTurn = false;
         this.deadPlayers = [];
     }
 
@@ -97,11 +99,18 @@ class GameData {
 
     getPlayerTurn() {
         let playerTurnData = this.players[this.playerTurn%this.players.length];
+        let index = 0;
 
-        while(playerTurnData.dead) {
+
+        while(this.deadPlayers.includes(playerTurnData.username)) {
             this.playerTurn++;
+            index++;
 
             playerTurnData = this.players[this.playerTurn%this.players.length];
+
+            if (index == this.players.length) {
+                return null;
+            }
         }
 
         return playerTurnData;
@@ -119,6 +128,9 @@ class GameData {
         this.favorTurn = false;
         this.favorTarget = null;
 
+        this.twoComboTurn = false;
+        this.threeComboTurn = false;
+
         if (this.currentTurnDraw == 0) {
             this.playerTurn++;
             this.currentTurnDraw = this.nextTurnDraw;
@@ -126,6 +138,21 @@ class GameData {
             this.nextTurnDraw = 1;
         }
     }
+
+    forceNextTurn() { 
+        this.currentTurnDraw--;
+        
+        this.nopeTurn = 0;
+        this.favorTurn = false;
+        this.favorTarget = null;
+
+        this.twoComboTurn = false;
+        this.threeComboTurn = false;
+
+        this.playerTurn++;
+        this.currentTurnDraw = this.nextTurnDraw;
+    }
+    
     
     drawCard(username) {
         let cardDraw = this.desk[this.desk.length-1]; 
@@ -137,6 +164,10 @@ class GameData {
         this.seeTheFuture = false;
         this.favorTurn = false;
         this.favorTarget = null;
+
+        this.twoComboTurn = false;
+        this.threeComboTurn = false;
+
         this.turnHistory = [];
     }
 
@@ -167,6 +198,22 @@ class GameData {
                 type: 'RESPONSE_UPDATE_GAME',
                 data: {
                     game: this
+                }
+            });
+        });
+    }
+
+    callEndGame(gameSocket) {
+        const winnerPlayers = this.players.filter(element => {
+            return !this.deadPlayers.includes(element.username);
+        });
+
+        gameSocket.forEach((socket) => {
+            socket.emit("response", {
+                type: 'RESPONSE_END_GAME',
+                data: {
+                    game: this,
+                    winnerPlayer: winnerPlayers[0]
                 }
             });
         });
@@ -218,25 +265,37 @@ class GameFactory {
         }
         return null;
     }
+
+    endGame(gameDataObject, gameSocketObject) {
+        let filteredData = Array.from(this.gameData).filter(([key, value]) => {
+          return value === gameDataObject;
+        });
+        this.gameData = new Map(filteredData);
+
+        let filteredGameSocket = Array.from(this.gameSocket).filter(([key, value]) => {
+            return value === gameSocketObject;
+          });
+        this.gameSocket = new Map(filteredGameSocket);
+    }
 };
 
 function generateDesk () { 
     let arr = [];
     
-    arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
+    // arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
     arr = arr.concat(generateDeckByAmount("DEFUSE",6));
-    arr = arr.concat(generateDeckByAmount("NOPE",5));
-    arr = arr.concat(generateDeckByAmount("SKIP",4));
-    arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",400));
-    arr = arr.concat(generateDeckByAmount("FAVOR",4));
+    // arr = arr.concat(generateDeckByAmount("NOPE",5));
+    // arr = arr.concat(generateDeckByAmount("SKIP",4));
+    // arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
+    // arr = arr.concat(generateDeckByAmount("FAVOR",4));
     arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
     arr = arr.concat(generateDeckByAmount("ATTACK",4));
     
-    arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
-    arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",400));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
+    // arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
     
     arr.sort((a,b) => 0.5 - Math.random());
 

@@ -86,27 +86,51 @@ const MainPlayerPosition = (props) => {
     }
 
     if(notice !== "DEAD") { 
-        return (
-            <Wrapper>
-                <Content>
-                    <NopeWrapper>
-                        {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
-                        <ButtonStyle onClick={(e) => {requestPlayNope()}}>Nope</ButtonStyle>
-                        <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
-                    </NopeWrapper>
-    
-                    <MainCardList cards={player.cards} socket = {socket}/>
-    
-                    <ButtonWrapper>
-                        {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
-                        <ButtonStyle> { notice } </ButtonStyle>
-                        
-                        <ButtonStyle onClick={(e) => {requestDrawCard()}}>Draw Card</ButtonStyle>
-                        <ButtonStyle onClick = {(e) => {requestGiveFavorCard()}}>Favor Card</ButtonStyle>
-                    </ButtonWrapper>
-                </Content>
-            </Wrapper>
-        );
+        if (gameData.favorTurn && gameData.favorTarget === username) {
+            return (
+                <Wrapper>
+                    <Content>
+                        <NopeWrapper>
+                            {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                            <ButtonStyle onClick={(e) => {requestPlayNope()}}>Nope</ButtonStyle>
+                            <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
+                        </NopeWrapper>
+        
+                        <MainCardList username={username} cards={player.cards} socket = {socket} hidden={false}/>
+        
+                        <ButtonWrapper>
+                            {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                            <ButtonStyle> { notice } </ButtonStyle>
+                            
+                            <ButtonStyle onClick={(e) => {requestDrawCard()}}>Draw Card</ButtonStyle>
+                            <ButtonStyle onClick = {(e) => {requestGiveFavorCard()}}>Favor Card</ButtonStyle>
+                        </ButtonWrapper>
+                    </Content>
+                </Wrapper>
+            );
+        }else {
+            return (
+                <Wrapper>
+                    <Content>
+                        <NopeWrapper>
+                            {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                            <ButtonStyle onClick={(e) => {requestPlayNope()}}>Nope</ButtonStyle>
+                            <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
+                        </NopeWrapper>
+        
+                        <MainCardList username={username} cards={player.cards} socket = {socket} hidden={false}/>
+        
+                        <ButtonWrapper>
+                            {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}
+                            <ButtonStyle> { notice } </ButtonStyle>
+                            
+                            <ButtonStyle onClick={(e) => {requestDrawCard()}}>Draw Card</ButtonStyle>
+                            <ButtonStyle onClick = {(e) => {requestPlayCard()}}>Play Card</ButtonStyle>
+                        </ButtonWrapper>
+                    </Content>
+                </Wrapper>
+            );
+        }
     }else { 
         return (
             <Wrapper>
@@ -117,7 +141,7 @@ const MainPlayerPosition = (props) => {
                         <ButtonStyle onClick={(e) => {requestPassNope()}}>Pass</ButtonStyle>
                     </NopeWrapper>
     
-                    <MainCardList cards={player.cards} socket = {socket}/>
+                    <MainCardList username={username} cards={player.cards} socket = {socket} hidden={false}/>
     
                     <ButtonWrapper>
                         {/* <ButtonStyle onClick onClick={(e) => props.popCards(lastCardInDesk)}>Draw Card</ButtonStyle> */}

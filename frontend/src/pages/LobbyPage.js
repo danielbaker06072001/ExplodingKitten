@@ -26,8 +26,10 @@ const LobbyPage = () => {
 
     useEffect(() =>  {
         return () => { 
-            let linkRoom = "/game/" + roomId;
-            navigate(linkRoom);
+            if (!startGame) {
+                let linkRoom = "/game/" + roomId;
+                navigate(linkRoom);
+            }
         }
     }, [startGame]);
     
@@ -80,9 +82,7 @@ const LobbyPage = () => {
         modalContent = <WaitingRoomModalContent owner={owner} roomId={roomId} playerList={playerList} requestStartGame = {requestStartGame}/>;
     } else if (modalType === 'JOIN') {
         modalContent = <JoinRoomModalContent onWaitingButtonClickForPlayer = {onWaitingButtonClickForPlayer}/>;
-    } else if (modalType === 'MATCH_MAKING') {
-        
-    }
+    } 
 
     return ( 
         <LobbyWrapper>
@@ -94,7 +94,6 @@ const LobbyPage = () => {
                 <MenuContent> 
                     <LobbyButton onClick = {(e) => onButtonClick("CREATE")}> Create Game </LobbyButton>
                     <LobbyButton onClick = {(e) => onButtonClick("JOIN")}> Join Game </LobbyButton>
-                    <LobbyButton> Match Making </LobbyButton>
                 </MenuContent>
             </MenuWrapper>
         </LobbyWrapper>

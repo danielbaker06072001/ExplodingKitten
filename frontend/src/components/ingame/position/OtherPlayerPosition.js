@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { GameContext } from "../../../context/GameProvider";
 import { GlobalContext } from "../../../context/GlobalProvider";
 import { useSocket } from "../../../socket";
+import MainCardList from "../card/MainCardList";
 
 const OtherPlayerPosition = (props) => {
   const socket = useSocket();
@@ -27,18 +28,35 @@ const OtherPlayerPosition = (props) => {
       usernameText = usernameText + " DEAD";
     }
 
+    const player = gameData.players.find((player) => 
+        player.username === usernameText
+    );
+
+    let hidden = true;
+
+    if (username === gameData.currentTurnUsername && gameData.threeComboTurn) {
+      hidden = false;
+    }
+
     if (gameData.favorTurn && username === gameData.currentTurnUsername) {
       return (        
           <Wrapper className={direction}>
-            <div> {props.children} {usernameText} </div>
+            <div> 
+              {props.children} {usernameText} 
+              <button onClick = {(e) => requestFavor(props.username)}> Favor </button>
+            </div>
           
-            <button onClick = {(e) => requestFavor(props.username)}> Favor </button>
+            <MainCardList username={usernameText} cards={player.cards} socket = {socket} direction={direction} hidden={hidden}> </MainCardList> 
           </Wrapper>
       );
     }else {
       return (        
           <Wrapper className={direction}>
-            <div> {props.children} {usernameText} </div>
+            <div> 
+              {props.children} {usernameText} 
+            </div>
+
+            <MainCardList username={usernameText} cards={player.cards} socket = {socket} direction={direction} hidden={hidden}> </MainCardList> 
           </Wrapper>
       );
     }

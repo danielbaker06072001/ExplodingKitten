@@ -14,9 +14,6 @@
  * 
  * Three of a kind
  * - 3x Card
- * 
- * 5 Different Cards
- * - 1x Every Special Card
  */
 
 class GameUtils {
@@ -28,9 +25,49 @@ class GameUtils {
     checkExplode(username, game, gameSocket) {
         let playerTurn = game.getPlayerByUsername(username);
 
-        if (playerTurn.cards.includes("EXPLODING_KITTEN")) {
-            game.deadPlayers.push(username);
+        if (!playerTurn.cards.includes("EXPLODING_KITTEN")) {
+            game.nextTurn();
+            return;
         }
+
+        if(!playerTurn.cards.includes("DEFUSE")) {
+            game.deadPlayers.push(username);
+            game.forceNextTurn();
+            return;
+        }
+             
+        playerTurn.cards.splice(playerTurn.cards.indexOf("DEFUSE"), 1);
+        playerTurn.cards.splice(playerTurn.cards.indexOf("EXPLODING_KITTEN"),1 );
+        game.desk = this.insertIntoArray(game.desk, "EXPLODING_KITTEN");
+        game.nextTurn();
+    }
+
+    checkEndgame(game, gameFactory, gameSocket) {
+        let lastPlayer = null;
+
+        const count = game.players.filter(element => {
+            return !game.deadPlayers.includes(element.username);
+        }).length;
+
+        if (count > 1) { 
+            return false;
+        }
+
+        game.callEndGame(gameSocket);
+        gameFactory.endGame(game, gameSocket);
+        return true;
+    }
+    
+    insertIntoArray(array, value) {
+        const randomIndex = Math.floor(Math.random() * (array.length));
+        array.splice(randomIndex, 0, value);
+        return array;
+    }
+    
+    getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
     }
 
     handlePostPlayCard(username, cards, cardIndexes, socket, game, gameSocket) {
@@ -39,7 +76,6 @@ class GameUtils {
             this.handleInvalidCard(socket);
             return;
         }
-
         
         // Stage playing nope
         game.postPlayCard = true;
@@ -83,6 +119,14 @@ class GameUtils {
                 this.handleFavor(game, socket);
             }
         }
+
+        if (cardTurnType === "TWO_KIND_COMBO") {
+            this.handleTwoKindCombo(game, socket);
+        }
+
+        if (cardTurnType === "THREE_KIND_COMBO") {
+            this.handleThreeKindCombo(game, socket);
+        }
         
         game.callUpdateGame(gameSocket);
     }
@@ -106,9 +150,10 @@ class GameUtils {
             return this.isTwoOfAKindCard(cards) ? "TWO_KIND_COMBO" : "INVALID"
         }else if (cards.length == 3) {
             return this.isThreeOfAKindCard(cards) ? "THREE_KIND_COMBO" : "INVALID"
-        }else if (cards.length == 5) {
-            return this.isFiveDifferentCards(cards) ? "FIVE_DIFFERENT_COMBO" : "INVALID"
         }
+        // else if (cards.length == 5) {
+        //     return this.isFiveDifferentCards(cards) ? "FIVE_DIFFERENT_COMBO" : "INVALID"
+        // }
         return "INVALID";
     }
     
@@ -136,14 +181,14 @@ class GameUtils {
         }
     }
 
-    isFiveDifferentCards(cards) { 
-        for (let specialCard of this.specialCardType) {
-            if (!cards.includes(specialCard)) {
-                return false;
-            }
-        }
-        return true;
-    }
+    // isFiveDifferentCards(cards) { 
+    //     for (let specialCard of this.specialCardType) {
+    //         if (!cards.includes(specialCard)) {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     handleSkipCard(game, socket) { 
         game.nextTurn();
@@ -163,6 +208,14 @@ class GameUtils {
 
     handleFavor(game, socket) { 
         game.favorTurn = true;
+    }
+
+    handleTwoKindCombo(game, socket) { 
+        game.twoComboTurn = true;
+    }
+
+    handleThreeKindCombo(game, socket) { 
+        game.threeComboTurn = true;
     }
 }
 

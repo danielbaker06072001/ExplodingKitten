@@ -2,10 +2,12 @@ import { io } from "socket.io-client"
 import { useContext } from "react";
 import { GlobalContext } from "./context/GlobalProvider";
 import { GameContext } from "./context/GameProvider";
+import { useNavigate } from 'react-router-dom';
 
 export const socket = io('ws://localhost:8080', { transports : ['websocket'] });
 
 export const useSocket = (props) => {
+    var navigate = useNavigate();
     const { 
         owner, setOwner, 
         username, setUsername, 
@@ -59,6 +61,15 @@ export const useSocket = (props) => {
                 break;
             case "RESPONSE_GIVE_FAVOR_CARD":
                 responseGiveFavorCard(data);
+                break;
+            case "RESPONSE_END_GAME" : 
+                responseEndGame(data);
+                break;
+            case "RESPONSE_TWO_KIND_COMBO" : 
+                responseTwoKindCombo(data);
+                break;
+            case "RESPONSE_THREE_KIND_COMBO" : 
+                responseThreeKindCombo(data);
                 break;
             default:
                 break;
@@ -154,6 +165,32 @@ export const useSocket = (props) => {
             setCurrentSelectedCardIndex([]);
         }
     };
+
+    function responseEndGame(data) { 
+        let winnerPlayer = data.winnerPlayer;
+
+        alert("The winner is " + winnerPlayer.username);
+
+        let linkRoom = "/";
+
+        setStartGame(false);
+
+        navigate(linkRoom);
+    }
+
+    function responseTwoKindCombo(data) { 
+        let card = data.card;
+        let target = data.target;
+
+        alert("You steal", card, "from", target, "!");
+    }
+
+    function responseThreeKindCombo(data) { 
+        let card = data.card;
+        let target = data.target;
+
+        alert("You steal", card, "from", target, "!");
+    }
 
     return socket;
 };

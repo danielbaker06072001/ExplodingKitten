@@ -77,6 +77,12 @@ io.on("connection", (socket) => {
             case "REQUEST_GIVE_FAVOR_CARD":
                 requestGiveFavorCard(data);
                 break;
+            case "REQUEST_TWO_KIND_COMBO":
+                requestTwoKindCombo(data);
+                break;
+            case "REQUEST_THREE_KIND_COMBO":
+                requestThreeKindCombo(data);
+                break;
             default:
                 break;
         }
@@ -215,7 +221,9 @@ io.on("connection", (socket) => {
             // });
             
             gameUtils.checkExplode(username, game, gameSocket);
-            game.nextTurn();
+            if (gameUtils.checkEndgame(game, gameFactory, gameSocket)) {
+                return;
+            }
             game.callUpdateGame(gameSocket);
         }else {
             socket.emit("response", {
@@ -363,6 +371,57 @@ io.on("connection", (socket) => {
 
         game.callUpdateGame(gameSocket);
     }
+
+    function requestTwoKindCombo(data) {
+        let username = data.username;
+        let target = data.target;
+        let index = data.index;
+        let roomId = data.roomId;
+
+        let game = gameFactory.getGameFactory(roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
+
+        selectedCard = game.getPlayerByUsername(target).cards[index];
+        
+        game.getPlayerByUsername(username).cards.push(selectedCard);
+        game.getPlayerByUsername(target).cards.splice(index, 1);
+
+        socket.emit("response", { 
+            type: "RESPONSE_TWO_KIND_COMBO",
+            data: {
+                target: target,
+                card: selectedCard
+            }
+        });
+
+        game.callUpdateGame(gameSocket);
+    }
+
+    function requestThreeKindCombo(data) {
+        let username = data.username;
+        let target = data.target;
+        let index = data.index;
+        let roomId = data.roomId;
+
+        let game = gameFactory.getGameFactory(roomId);
+        let gameSocket = gameFactory.getGameSocketFactory(roomId);
+
+        selectedCard = game.getPlayerByUsername(target).cards[index];
+        
+        game.getPlayerByUsername(username).cards.push(selectedCard);
+        game.getPlayerByUsername(target).cards.splice(index, 1);
+
+        socket.emit("response", { 
+            type: "RESPONSE_THREE_KIND_COMBO",
+            data: {
+                target: target,
+                card: selectedCard
+            }
+        });
+
+        game.callUpdateGame(gameSocket);
+    }
+
 })
 
 const port = process.env.PORT || 8082;
