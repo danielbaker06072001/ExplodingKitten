@@ -282,20 +282,20 @@ class GameFactory {
 function generateDesk () { 
     let arr = [];
     
-    // arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
+    arr = arr.concat(generateDeckByAmount("SEE_THE_FUTURE", 5));
     arr = arr.concat(generateDeckByAmount("DEFUSE",6));
-    // arr = arr.concat(generateDeckByAmount("NOPE",5));
-    // arr = arr.concat(generateDeckByAmount("SKIP",4));
-    // arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
-    // arr = arr.concat(generateDeckByAmount("FAVOR",4));
+    arr = arr.concat(generateDeckByAmount("NOPE",5));
+    arr = arr.concat(generateDeckByAmount("SKIP",4));
+    arr = arr.concat(generateDeckByAmount("EXPLODING_KITTEN",4));
+    arr = arr.concat(generateDeckByAmount("FAVOR",4));
     arr = arr.concat(generateDeckByAmount("SHUFFLE",4));
     arr = arr.concat(generateDeckByAmount("ATTACK",4));
     
-    arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",400));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
-    // arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_ONE",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_TWO",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_THREE",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_FOUR",4));
+    arr = arr.concat(generateDeckByAmount("SPECIAL_FIVE",4));
     
     arr.sort((a,b) => 0.5 - Math.random());
 
