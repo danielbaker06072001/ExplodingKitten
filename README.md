@@ -1,5 +1,6 @@
 # ExplodingKitten - Project - Coded by Nhat Anh and Duc Nguyen
-- Two noob finish their first ever project together
+- Two programmer decided to work on this project together
+- Main objective of this project is to familiar ourselves with MERN stack and Socket.io (an interesting library)
 - Game based on Exploding Kitten boardgame
 - Game rule can be found here https://www.explodingkittens.com/
 - Exploding Kitten is a copyright products, this is just a practise project
